@@ -1,0 +1,215 @@
+:root {
+    --primary-color: #742284;
+    --text-color: #333;
+    --white: #ffffff;
+    --bg-purple: #6a1b7a;
+    --keypad-bg: #f3f4f8;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--primary-color);
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --- UPPER SECTION (Purple) --- */
+.upper-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    padding-top: 20px;
+}
+
+.qr-container {
+    background-color: white;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.qr-image {
+    width: 140px;
+    height: 140px;
+    display: block;
+}
+
+.options-row {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.option-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 80px;
+    cursor: pointer;
+}
+
+.option-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 20px;
+}
+
+.option-text {
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+/* --- BOTTOM SECTION (Keypad) --- */
+.bottom-section {
+    background-color: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 20px;
+    padding-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Dots and Title Container - occupy same space logic via JS */
+.header-area {
+    height: 40px;
+    /* Fixed height to prevent accumulating layout shifts */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    width: 100%;
+}
+
+.keypad-title {
+    font-size: 18px;
+    color: #555;
+    font-weight: 500;
+}
+
+/* Dots Setup */
+.password-dots {
+    display: none;
+    /* Hidden by default */
+    gap: 15px;
+    /* Spacing between dots */
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ddd;
+    /* Inactive gray */
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.dot.active {
+    background-color: var(--primary-color);
+    /* Maybe slightly larger or glow? Image just shows solid dots */
+}
+
+.keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.key-btn {
+    background-color: #f0f0f5;
+    border: none;
+    border-radius: 12px;
+    height: 55px;
+    font-size: 24px;
+    color: #555;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.key-btn:active {
+    background-color: #e0e0e5;
+}
+
+.key-btn.transparent {
+    background-color: transparent;
+    cursor: default;
+}
+
+.key-btn.backspace {
+    background-color: #f0f0f5;
+    color: #666;
+    font-size: 20px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-title {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.modal-message {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.modal-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+}

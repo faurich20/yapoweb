@@ -1,0 +1,343 @@
+/* --- VARIABLES Y RESET --- */
+:root {
+    --color-purple: #581669;
+    --color-turquoise: #10cbb4;
+    --color-yellow: #ffc107;
+    --color-white: #ffffff;
+    --color-bg-gray: #f5f5f5;
+    --color-text-dark: #333333;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    background-color: var(--color-bg-gray);
+    /* Padding inferior para que la barra fija no tape el contenido */
+    padding-bottom: 80px;
+}
+
+/* --- CONTENEDOR PRINCIPAL (Fondo Morado) --- */
+.main-container {
+    background-color: var(--color-purple);
+    color: var(--color-white);
+    padding-bottom: 20px;
+    /* Espacio para que la sección blanca se superponga */
+}
+
+/* --- HEADER --- */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    /* Reducido de 10px 15px */
+}
+
+.header-left i {
+    font-size: 24px;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 8px 10px;
+    border-radius: 50%;
+}
+
+.header-center {
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.badge-gratis {
+    background-color: var(--color-yellow);
+    color: var(--color-purple);
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.header-right {
+    display: flex;
+    gap: 20px;
+    font-size: 20px;
+}
+
+.notification-icon {
+    position: relative;
+}
+
+.notification-icon .dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-turquoise);
+    border-radius: 50%;
+    border: 1px solid var(--color-purple);
+}
+
+/* --- CUADRÍCULA DE ACCIONES --- */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 columnas iguales */
+    gap: 12px 6px;
+    /* Reducido de 15px 8px */
+    /* Espacio entre filas y columnas */
+    padding: 12px 10px;
+    /* Reducido de 15px 10px */
+    text-align: center;
+}
+
+.action-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Asegura centrado */
+}
+
+.action-item span {
+    display: block;
+    font-size: 10px;
+    /* Reducido de 11px */
+    margin-top: 5px;
+    /* Reducido de 8px */
+    color: var(--color-white);
+    line-height: 1.1;
+    width: 100%;
+    overflow-wrap: break-word;
+    /* Evita desbordamiento de texto */
+}
+
+.icon-box {
+    background-color: var(--color-white);
+    width: 48px;
+    /* Reducido de 60px */
+    height: 48px;
+    /* Reducido de 60px */
+    border-radius: 20px;
+    /* Ajustado proporcionalmente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    /* Centrar horizontalmente */
+    font-size: 22px;
+    /* Reducido de 26px */
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Añadido sutil sombra */
+}
+
+/* Badge Sorteo para Remesas */
+/* Badge Sorteo para Remesas */
+.badge-sorteo {
+    position: absolute;
+    top: -12px;
+    right: -30px;
+    background-color: #f59e0b;
+    color: #581669 !important;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 3px;
+    border-radius: 6px;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Colores específicos para los iconos según la imagen de referencia */
+/* Todos los iconos tienen fondo BLANCO con el icono de COLOR */
+
+/* Colores específicos para los iconos según la imagen de referencia */
+
+.recargar-icon {
+    /* Morado */
+    color: #7c3aed;
+}
+
+.yapear-servicios-icon {
+    /* Azul/Amarillo (usamos azul principal) */
+    color: #0ea5e9;
+}
+
+.promos-icon {
+    /* Naranja oscuro */
+    color: #f59e0b;
+}
+
+.aprobar-icon {
+    /* Morado */
+    color: #8b5cf6;
+}
+
+.creditos-icon {
+    /* Verde */
+    color: #10b981;
+}
+
+.tienda-icon {
+    /* Morado/Rosado */
+    color: #d946ef;
+}
+
+.dolares-icon {
+    /* Verde oscuro */
+    color: #10b981;
+}
+
+.remesas-icon {
+    /* Azul claro */
+    color: #06b6d4;
+}
+
+.soat-icon {
+    /* Azul electrico */
+    color: #2563eb;
+}
+
+.gaming-icon {
+    /* Morado oscuro */
+    color: #7e22ce;
+}
+
+.yapear-dolares-icon {
+    /* Verde + Morado, usamos morado base */
+    color: #10b981;
+}
+
+.ver-todo-icon {
+    /* Gradiente Morado a Rosado */
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    color: var(--color-white);
+    font-size: 24px;
+}
+
+
+/* --- BANNER PROMOCIONAL --- */
+.banner-section {
+    padding: 0 15px 15px;
+    /* Reducido padding inferior */
+    text-align: center;
+}
+
+.banner-placeholder {
+    width: 100%;
+    height: 120px;
+    /* Reducido de 140px */
+    background-image: url('/static/banner_placeholder.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 15px;
+    margin-bottom: 10px;
+}
+
+.pagination-dots .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    margin: 0 4px;
+}
+
+.pagination-dots .dot.active {
+    background-color: var(--color-white);
+    width: 16px;
+    /* El punto activo es más ancho */
+    border-radius: 4px;
+}
+
+
+/* --- SECCIÓN DE SALDO (Blanca y curva) --- */
+.balance-container {
+    background-color: var(--color-bg-gray);
+    /* La clave: bordes redondeados solo arriba y margen negativo para subirla */
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    margin-top: -35px;
+    /* Aumentado margen negativo */
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.balance-button {
+    background-color: var(--color-white);
+    padding: 12px 15px;
+    /* Reducido de 15px 20px */
+    border-radius: 12px;
+    /* Ajustado */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--color-purple);
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+
+.balance-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.show-icon {
+    font-size: 18px;
+}
+
+.movements-icon {
+    font-size: 20px;
+}
+
+.arrow-icon {
+    color: #aaa;
+    font-size: 14px;
+}
+
+
+/* --- BARRA INFERIOR FIJA --- */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-white);
+    padding: 15px 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 15px;
+    box-sizing: border-box;
+    /* Asegura que el padding no afecte el ancho total */
+}
+
+.btn {
+    flex: 1;
+    /* Ambos botones ocupan el mismo espacio */
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
+}
+
+.btn-outline {
+    background-color: var(--color-white);
+    border: 2px solid var(--color-turquoise);
+    color: var(--color-turquoise);
+}
+
+.btn-filled {
+    background-color: var(--color-turquoise);
+    border: none;
+    color: var(--color-white);
+}

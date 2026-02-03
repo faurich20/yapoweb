@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <!-- Importante: resize con teclado -->
+    <title>Yapear a ...</title>
+    <link rel="stylesheet" href="/static/yapear_monto.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="monto-header">
+        <a href="/yapear" class="back-btn"><i class="fa-solid fa-chevron-left"></i></a>
+        <div class="header-info">
+            <h1>Yapear a</h1>
+            <p class="contact-name" id="contact-name-display">...</p>
+        </div>
+        <a href="/yapear" class="close-btn"><i class="fa-solid fa-xmark"></i></a>
+    </header>
+
+    <!-- Content Centered -->
+    <div class="monto-content">
+        <!-- Wrapper Superior (Monto + Validaciones) -->
+        <div class="amount-wrapper">
+            <!-- Input Monto -->
+            <div class="input-container">
+                <span class="currency">S/</span>
+                <!-- Input editable -->
+                <input type="tel" id="monto-input" oninput="validarMonto()" inputmode="decimal" placeholder="0">
+                <!-- Cursor falso para efecto visual si fuera necesario, pero input nativo es mejor para teclado -->
+            </div>
+
+            <!-- Mensaje Validación -->
+            <p class="validation-msg" id="msg-error">El monto ingresado no es válido</p>
+            <p class="validation-msg" id="msg-limit" style="display: none;">Límite por yapeo S/ 500, límite total por
+                día S/
+                2000</p>
+        </div>
+
+        <!-- Input Mensaje (Empujado hacia abajo por Flex space-between) -->
+        <div class="message-input-container">
+            <input type="text" placeholder="Agregar mensaje" class="message-input">
+        </div>
+    </div>
+
+    <!-- Footer Buttons -->
+    <div class="monto-footer">
+        <button class="btn btn-outline" disabled>Otros bancos</button>
+        <button class="btn btn-filled" id="btn-yapear" disabled>Yapear</button>
+    </div>
+
+    <!-- Datos de contacto para JS (Store vacío se llenará o usaremos var global) -->
+    <!-- Vamos a usar JS directo para esto -->
+    <div id="data-store" style="display: none;"></div>
+
+    <script src="/static/js/yapear_monto.js"></script>
+    <script>
+        (function () {
+            // Cargar datos contacto
+            // Usamos una lógica robusta para obtener el ID, manejando posibles slash al final
+            const parts = window.location.pathname.split('/').filter(p => p.trim() !== '');
+            const cId = parts[parts.length - 1];
+
+            fetch(`/api/contacto/${cId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.contacto) {
+                        const c = data.contacto;
+                        document.title = `Yapear a ${c.nombres}`;
+                        const nameDisplay = document.getElementById('contact-name-display');
+                        if (nameDisplay) {
+                            nameDisplay.textContent = c.nombres;
+                        }
+
+                        // Actualizar data store para que el JS existente funcione
+                        const ds = document.getElementById('data-store');
+                        if (ds) {
+                            ds.dataset.contactoId = c.id;
+                            ds.dataset.contactoNombre = c.nombres;
+                        }
+                    } else {
+                        alert("Contacto no encontrado");
+                        window.location.href = '/yapear';
+                    }
+                })
+                .catch(e => console.error('Error cargando contacto:', e));
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,346 @@
+:root {
+    --color-purple: #742284;
+    --color-text-dark: #333333;
+    --color-text-gray: #757575;
+    --color-text-light-gray: #adadad;
+    --color-bg: #f9f9f9;
+    --color-border: #e0e0e0;
+    --color-turquoise: #00ceb4;
+    /* Botón activo */
+    --color-btn-disabled: #e0e0e0;
+    --color-btn-text-disabled: #a8a8a8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: #fff;
+    height: 100vh;
+    /* Fallback */
+    height: 100dvh;
+    /* Mobile viewport height (keyboard aware) */
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- HEADER --- */
+.monto-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* Alinear arriba para las flechas */
+    padding: 15px 20px;
+    background-color: #fff;
+    position: relative;
+}
+
+.monto-header .back-btn,
+.monto-header .close-btn {
+    text-decoration: none;
+    color: #555;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.header-info {
+    text-align: center;
+    flex: 1;
+    margin-top: 5px;
+    /* Corrección leve a la izquierda si se percibe desplazado */
+    transform: translateX(-5px);
+}
+
+.header-info h1 {
+    font-size: 16px;
+    color: var(--color-text-dark);
+    font-weight: 500;
+}
+
+.header-info .contact-name {
+    font-size: 16px;
+    color: var(--color-purple);
+    font-weight: 500;
+    margin-top: 24px;
+    /* Reducido drásticamente de 25px */
+}
+
+/* --- CONTENIDO CENTRAL --- */
+.monto-content {
+    flex: 1;
+    /* Ocupa el espacio disponible */
+    display: flex;
+    flex-direction: column;
+    /* Centrar verticalmente */
+    align-items: center;
+    padding: 20px;
+    /* Usar space-between para distribuir: Input Arriba, Mensaje Abajo */
+    justify-content: flex-start;
+    /* Cambio de space-between a flex-start para controlar mejor la posición superior */
+    gap: 30px;
+    /* Espacio controlado entre input y mensaje */
+}
+
+/* Contenedor superior para el input de monto (para centrarlo verticalmente en su mita) */
+.amount-wrapper {
+    flex: 1;
+    /* Ocupa el espacio superior */
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Input Monto */
+.input-container {
+    display: flex;
+    /* Restaurado */
+    align-items: baseline;
+    /* Alinea la base del texto correctamente */
+    justify-content: center;
+    margin-bottom: 10px;
+    position: relative;
+    gap: 2px;
+    /* Espacio mínimo entre S/ y Número */
+}
+
+.currency {
+    font-size: 32px;
+    color: #d8aadd;
+    font-weight: 400;
+    /* Eliminar márgenes raros, usar alineación flexible */
+
+    transform: translateY(-5px);
+    /* Ajuste fino vertical para alinear con el número gigante */
+}
+
+#monto-input {
+    border: none;
+    outline: none;
+    font-size: 64px;
+    color: var(--color-purple);
+
+    /* ANCHO DINÁMICO */
+    width: 60px;
+    /* Ancho para el '0' inicial */
+    min-width: 40px;
+    max-width: 100%;
+    /* Permitir que ocupe lo necesario */
+
+    text-align: left;
+    /* Alineado a la izquierda PEKADO al S/ */
+    font-weight: 400;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+
+    /* Hack para cursor más pequeño: altura menor que la fuente + overflow visible */
+    line-height: 1.1;
+    height: auto;
+    /* Dejar que la fuente defina la altura */
+    padding-right: 5px;
+    /* Extra seguridad */
+
+    /* El caret (barra) sigue la altura o font-size. Intentamos color */
+    caret-color: var(--color-purple);
+    overflow: visible;
+    /* Asegurar que no corte */
+}
+
+#monto-input::placeholder {
+    color: var(--color-purple);
+}
+
+/* Quitar flechas del input number */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Mensajes */
+.validation-msg {
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+#msg-error {
+    color: #d93025;
+    /* Rojo Yape */
+    background-color: #fce8e6;
+    /* Fondo rojo suave */
+}
+
+#msg-limit {
+    color: #999;
+    background-color: #f0f0f0;
+}
+
+/* Input Mensaje (Abajo) */
+.message-input-container {
+    width: 100%;
+    max-width: 320px;
+    border-bottom: 1px solid #ddd;
+    /* Color default */
+    margin-bottom: 20px;
+    /* Separación del footer */
+    transition: border-color 0.3s;
+}
+
+/* Clase activa para borde morado */
+.message-input-container.active {
+    border-bottom: 1px solid var(--color-purple);
+}
+
+.message-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 16px;
+    padding: 10px;
+    color: #333;
+    background: transparent;
+}
+
+.message-input::placeholder {
+    color: #aaa;
+}
+
+/* --- FOOTER (BOTONES) --- */
+.monto-footer {
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    /* Centrados */
+    background-color: #fff;
+}
+
+.btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+}
+
+/* Botón Outline (Otros bancos) */
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-turquoise);
+    color: var(--color-turquoise);
+}
+
+.btn-outline:disabled {
+    border-color: #ddd;
+    color: #ccc;
+    /* Texto gris */
+}
+
+/* Botón Filled (Yapear) */
+.btn-filled {
+    background-color: var(--color-turquoise);
+    color: white;
+}
+
+.btn-filled:disabled {
+    background-color: #e6e6e6;
+    /* Gris claro fondo */
+    color: #b0b0b0;
+    /* Gris texto */
+}
+
+/* RESPONSIVE: Ajuste cuando sale el teclado (viewport height shrink) */
+/* --- MODO TECLADO ACTIVO (Clase agregada por JS) --- */
+body.keyboard-open .monto-header {
+    padding: 8px 15px;
+    /* Ajuste fino */
+    align-items: flex-start;
+}
+
+body.keyboard-open .header-info h1 {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 20px;
+    /* Reducir margen */
+}
+
+body.keyboard-open .header-info .contact-name {
+    margin-top: 0;
+    font-size: 14px;
+}
+
+body.keyboard-open .monto-content {
+
+    justify-content: flex-start;
+    /* Empaquetar todo hacia arriba */
+    padding-top: 5px;
+    gap: 0;
+    padding-bottom: 0;
+}
+
+body.keyboard-open .amount-wrapper {
+    flex: 0 0 auto;
+    /* No expandir */
+    padding: 18px 0;
+    /* Un poco de aire arriba/abajo del monto */
+    margin-bottom: 0;
+}
+
+body.keyboard-open .input-container {
+    margin-bottom: 5px;
+}
+
+/* Un poco menos agresivo que 56px para asegurar espacio */
+body.keyboard-open #monto-input {
+    font-size: 52px;
+}
+
+body.keyboard-open .currency {
+    font-size: 26px;
+    transform: translateY(-6px);
+}
+
+body.keyboard-open .message-input-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+body.keyboard-open .validation-msg {
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+body.keyboard-open .monto-footer {
+    padding: 12px;
+    /* Reducir padding del footer */
+    padding-bottom: 8px;
+    /* Menos espacio abajo */
+}
+
+body.keyboard-open .btn {
+    padding: 10px;
+    /* Botones más delgados */
+    font-size: 18px;
+}
+
+/* Media query de respaldo minimalista */
+@media (max-height: 500px) {
+    .monto-content {
+        padding-top: 10px;
+    }
+}

@@ -1,0 +1,269 @@
+/* --- VARIABLES --- */
+:root {
+    --color-purple: #581669;
+    --color-turquoise: #10cbb4;
+    --color-white: #ffffff;
+    --color-pink: #ff006e;
+}
+
+/* --- RESET Y CONTENEDOR PRINCIPAL --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* --- CONTENEDOR DEL ESCÁNER --- */
+.qr-scanner-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+/* --- VIDEO DE LA CÁMARA --- */
+#qr-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* --- OVERLAY OSCURO (Modificado para efecto máscara) --- */
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    /* Quitamos el fondo global */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Importante para el box-shadow gigante */
+}
+
+/* --- BOTÓN CERRAR (X) --- */
+.close-scanner {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    background: #00000054;
+    border: none;
+    border-radius: 50%;
+    outline: none;
+    /* Quitar borde de foco */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.close-scanner span {
+    color: var(--color-white);
+    font-size: 32px;
+    /* Tamaño grande para la X */
+    line-height: 1;
+    font-weight: 300;
+}
+
+.close-scanner:hover {
+    opacity: 0.8;
+}
+
+/* --- ÁREA DE ESCANEO (El hueco transparente) --- */
+.scan-area {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin-bottom: 30px;
+    /* Sombrea todo lo que está FUERA del recuadro con negro transparente */
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+}
+
+.scan-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* Sin bordes ni fondo */
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    /* Para que la línea no se salga */
+}
+
+/* --- ESQUINAS DEL RECUADRO (Eliminadas) --- */
+.corner {
+    display: none;
+}
+
+.corner-tl {
+    top: -3px;
+    left: -3px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 12px;
+}
+
+.corner-tr {
+    top: -3px;
+    right: -3px;
+    border-left: none;
+    border-bottom: none;
+    border-top-right-radius: 12px;
+}
+
+.corner-bl {
+    bottom: -3px;
+    left: -3px;
+    border-right: none;
+    border-top: none;
+    border-bottom-left-radius: 12px;
+}
+
+.corner-br {
+    bottom: -3px;
+    right: -3px;
+    border-left: none;
+    border-top: none;
+    border-bottom-right-radius: 12px;
+}
+
+/* --- LÍNEA DE ESCANEO (Estática) --- */
+.scan-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    /* Línea fina normal */
+    background-color: #c131e6;
+}
+
+/* Animación eliminada */
+
+
+/* --- TEXTO INSTRUCTIVO --- */
+.scan-instruction {
+    position: relative;
+    /* Necesario para z-index */
+    z-index: 20;
+    /* Traer al frente */
+    color: var(--color-white);
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: -35px;
+    margin-bottom: 40px;
+    line-height: 1.5;
+}
+
+/* --- BOTONES FLOTANTES --- */
+.scanner-actions {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+/* Botón Encender linterna */
+.btn-flashlight {
+    background: rgba(255, 255, 255, 0.2);
+    /* Blanco transparente */
+    backdrop-filter: blur(4px);
+    border: none;
+    color: var(--color-white);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+    font-family: inherit;
+    width: auto;
+}
+
+.btn-flashlight:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-flashlight i {
+    font-size: 14px;
+}
+
+/* Botón Subir imagen */
+.btn-upload-image {
+    background: var(--color-white);
+    border: none;
+    color: var(--color-purple);
+    width: 100%;
+    padding: 20px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.btn-upload-image:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-upload-image i {
+    font-size: 22px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 480px) {
+    .scan-area {
+        width: 240px;
+        height: 240px;
+    }
+
+    .close-scanner {
+        width: 40px;
+        height: 40px;
+        top: 15px;
+        right: 15px;
+    }
+
+    .close-scanner i {
+        font-size: 20px;
+    }
+
+    .scan-instruction {
+        font-size: 14px;
+    }
+}

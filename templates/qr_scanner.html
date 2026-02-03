@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escanear QR - Yape</title>
+    <link rel="stylesheet" href="/static/qr_scanner.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+
+<body>
+    <!-- Contenedor del escáner QR -->
+    <div class="qr-scanner-container">
+        <!-- Video de la cámara -->
+        <video id="qr-video" autoplay playsinline></video>
+
+        <!-- Overlay oscuro -->
+        <div class="scanner-overlay">
+            <!-- Botón cerrar (X) -->
+            <button class="close-scanner" onclick="closeScanner()" type="button">
+                <span>&#10005;</span>
+            </button>
+
+            <!-- Recuadro de escaneo -->
+            <div class="scan-area">
+                <div class="scan-frame">
+                    <!-- Esquinas del recuadro -->
+                    <div class="corner corner-tl"></div>
+                    <div class="corner corner-tr"></div>
+                    <div class="corner corner-bl"></div>
+                    <div class="corner corner-br"></div>
+
+                    <!-- Línea de escaneo animada -->
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+
+            <!-- Texto instructivo -->
+            <p class="scan-instruction">Enfoca el código QR dentro<br>del recuadro</p>
+
+            <!-- Botones flotantes -->
+            <div class="scanner-actions">
+                <!-- Botón Encender linterna -->
+                <button class="btn-flashlight" onclick="toggleFlashlight()">
+                    Encender linterna
+                </button>
+
+                <!-- Botón Subir imagen -->
+                <button class="btn-upload-image" onclick="uploadImage()">
+                    <i class="fa-regular fa-image"></i> Subir una imagen con QR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/qr_scanner.js"></script>
+</body>
+
+</html>

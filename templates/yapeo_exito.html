@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yape realizado</title>
+    <link rel="stylesheet" href="/static/yapeo_exito.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <!-- Envolver todo para capturar la pantalla completa (Header + Tarjeta + Banner) -->
+    <div id="capture-area"
+        style="width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; background: linear-gradient(to bottom, #4b1972 0%, #742284 100%); padding-bottom: 20px;">
+
+        <!-- Header App -->
+        <div class="app-header">
+            <img src="/static/yape_logo_b.png" alt="Yape" class="yape-logo-header">
+            <!-- El boton cerrar puede ocultarse en la captura si se desea, pero suele salir. 
+                 Si queremos ocultarlo, le ponemos una clase para ocultar en JS -->
+            <a href="/yapear" class="close-btn ignore-capture"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <!-- Tarjeta -->
+        <div class="receipt-card">
+            <div class="card-header">
+                <span class="success-title">¡Yapeaste!</span>
+                <button class="share-btn" onclick="compartirImagen()">
+                    <i class="fa-solid fa-share-nodes"></i> Compartir
+                </button>
+            </div>
+
+            <div class="amount-row">
+                <span class="currency">S/</span>
+                <span class="amount" id="pago-monto">--.--</span>
+            </div>
+            <div class="recipient-name" id="pago-nombres">...</div>
+
+            <div class="date-row">
+                <i class="fa-regular fa-calendar"></i>
+                <span id="pago-fecha">...</span>
+                <span class="separator">|</span>
+                <i class="fa-regular fa-clock"></i>
+                <span id="pago-hora">...</span>
+            </div>
+
+            <!-- Mensaje -->
+            <div class="message-container" id="msg-container" style="display: none;">
+                <i class="fa-solid fa-comment-dots message-icon"></i>
+                <span id="pago-mensaje"></span>
+            </div>
+
+            <!-- Codigo Seguridad -->
+            <div class="security-section">
+                <div class="section-label">
+                    CÓDIGO DE SEGURIDAD <i class="fa-solid fa-circle-info info-icon"></i>
+                </div>
+                <div class="security-digits">
+                    <div class="digit-box" id="sec-1">0</div>
+                    <div class="digit-box" id="sec-2">0</div>
+                    <div class="digit-box" id="sec-3">0</div>
+                </div>
+            </div>
+
+            <!-- Datos Transaccion -->
+            <div class="transaction-section">
+                <div class="section-label transaction-title">DATOS DE LA TRANSACCIÓN</div>
+
+                <div class="data-row" id="row-celular">
+                    <span>Nro. de celular</span>
+                    <span class="bold" id="pago-celular">*** *** ***</span>
+                </div>
+
+                <div class="data-row">
+                    <span>Destino</span>
+                    <span class="bold" id="pago-destino">Yape</span>
+                </div>
+                <div class="data-row">
+                    <span>Nro. de operación</span>
+                    <span class="bold" id="pago-operacion">-------</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banner 'Más en Yape' -->
+        <div class="promo-section-wrapper">
+            <div class="promo-header">
+                <span class="promo-title">Más en Yape</span>
+                <span class="badge-new">Nuevo</span>
+            </div>
+
+            <div class="promo-card">
+                <div class="promo-img-container">
+                    <img src="/static/bannerkfc.png" alt="KFC Promo" crossorigin="anonymous">
+                </div>
+
+                <div class="promo-content">
+                    <i class="fa-solid fa-certificate promo-icon-badge"></i>
+
+                    <div class="promo-text">
+                        <strong>8 piezas de pollo</strong><br>
+                        + 1 papa fam.<br>
+                        + 4 gaseosas reg.
+                    </div>
+
+                    <div class="promo-price-container">
+                        <span class="promo-label">A SOLO</span>
+                        <div class="promo-price-row">
+                            <span class="promo-symbol">S/</span>
+                            <span class="promo-amount-int">56</span>
+                            <span class="promo-decimals">.90</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-promo-action">
+                        Ir a Promos <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Fin Capture Area -->
+
+    <!-- Script Captura y Datos -->
+    <script>
+        // Obtener num_operacion de la URL /yapear/exito/<num>
+        const pathParts = window.location.pathname.split('/');
+        const numOperacion = pathParts[pathParts.length - 1];
+
+        // Fetch data
+        fetch(`/api/pago/${numOperacion}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const p = data.pago;
+                    // Lógica para formateo de monto: enteros sin decimales, decimales con 2 dígitos
+                    const val = parseFloat(p.monto_fmt);
+                    // Si es entero (ej: 50.00 -> 50) quitamos decimales
+                    // Si tiene decimales (ej: 2.50) mantenemos el formato del servidor
+                    if (Number.isInteger(val)) {
+                        document.getElementById('pago-monto').textContent = Math.round(val).toString();
+                    } else {
+                        document.getElementById('pago-monto').textContent = p.monto_fmt;
+                    }
+                    document.getElementById('pago-nombres').textContent = p.nombres;
+                    document.getElementById('pago-fecha').textContent = p.fecha_fmt;
+                    document.getElementById('pago-hora').textContent = p.hora_fmt;
+
+                    if (p.mensaje) {
+                        document.getElementById('msg-container').style.display = 'flex';
+                        document.getElementById('pago-mensaje').textContent = p.mensaje;
+                    }
+
+                    // Seguridad
+                    if (p.cod_seguridad && p.cod_seguridad.length >= 3) {
+                        document.getElementById('sec-1').textContent = p.cod_seguridad[0];
+                        document.getElementById('sec-2').textContent = p.cod_seguridad[1];
+                        document.getElementById('sec-3').textContent = p.cod_seguridad[2];
+                    }
+
+                    // Transaccion
+                    if (p.celular_masked) {
+                        document.getElementById('pago-celular').textContent = p.celular_masked;
+                    } else {
+                        document.getElementById('row-celular').style.display = 'none';
+                    }
+
+                    document.getElementById('pago-destino').textContent = p.destino;
+                    document.getElementById('pago-operacion').textContent = p.num_operacion;
+                } else {
+                    alert('No se pudo cargar la información del pago.');
+                }
+            })
+            .catch(err => console.error(err));
+
+        function compartirImagen() {
+            const captureArea = document.getElementById('capture-area');
+            document.body.style.cursor = 'wait';
+
+            html2canvas(captureArea, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                // Usamos numOperacion de la variable global
+                link.download = `constancia_yape_${numOperacion}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                document.body.style.cursor = 'default';
+            }).catch(err => {
+                console.error("Error al generar imagen:", err);
+                alert("No se pudo guardar la imagen: " + err.message);
+                document.body.style.cursor = 'default';
+            });
+        }
+    </script>
+</body>
+
+</html>

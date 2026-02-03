@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yapear</title>
+    <link rel="stylesheet" href="/static/yapear.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="yapear-header">
+        <a href="/" class="close-btn"><i class="fa-solid fa-xmark"></i></a>
+        <h1>Yapear</h1>
+        <div class="empty-space"></div> <!-- Para centrar el título -->
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+        <div class="tab active" id="tab-contacts" onclick="switchTab('contacts')">Contactos</div>
+        <div class="tab" id="tab-pending" onclick="switchTab('pending')">Yapeos pendientes</div>
+    </div>
+
+    <!-- Buscador (Solo visible en contactos) -->
+    <div class="search-container" id="search-section">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Busca el celular o contacto" inputmode="text">
+        </div>
+    </div>
+
+    <!-- Contenedor: A nuevo celular (Oculto por defecto) -->
+    <div id="new-contact-option" style="display: none;">
+        <div class="new-contact-item" onclick="seleccionarNuevoNumero()">
+            <div class="new-contact-info">
+                <div class="new-contact-label">A nuevo celular</div>
+                <div class="new-contact-number" id="new-number-display"></div>
+            </div>
+            <div class="new-contact-actions" onclick="abrirModalGuardar(event)">
+                <i class="fa-solid fa-user-plus"></i> <!-- Icono aproximado -->
+            </div>
+        </div>
+        <p class="no-save-hint">No necesitas guardarlo en tus contactos</p>
+    </div>
+
+    <!-- Mensaje: Sin resultados (Oculto por defecto) -->
+    <div id="no-results-msg" style="display: none; text-align: center; padding: 20px; color: #757575;">
+        <p>Sin resultados</p>
+    </div>
+
+    <!-- Contenido: Lista de Contactos -->
+    <div class="contacts-list" id="content-contacts">
+        <!-- Se llena con JS -->
+        <div style="text-align: center; padding: 20px;" id="loading-contacts">
+            <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+        </div>
+    </div>
+
+    <!-- Contenido: Yapeos Pendientes (Oculto por defecto) -->
+    <div class="pending-section" id="content-pending" style="display: none;">
+        <div class="empty-state">
+            <div class="icon-circle">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <p>No tienes pagos pendientes</p>
+        </div>
+    </div>
+
+    <!-- MODAL GUARDAR CONTACTO -->
+    <div id="modal-guardar" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Guardar Contacto</h3>
+            <div class="modal-body">
+                <label>Nombre</label>
+                <input type="text" id="modal-nombre" placeholder="Ingresa el nombre">
+
+                <label>Celular</label>
+                <input type="text" id="modal-celular" readonly>
+                <p id="modal-error-msg" style="display: none; color: #d93025; font-size: 13px; margin-top: 5px;"></p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="cerrarModalGuardar()">Cancelar</button>
+                <button class="btn-save" onclick="guardarContacto()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/yapear.js"></script>
+    <script>
+        // Lógica de carga de contactos movida del server al cliente
+        function formatCelular(cel) {
+            if (!cel || cel.length !== 9) return cel;
+            return cel.substring(0, 3) + ' ' + cel.substring(3, 6) + ' ' + cel.substring(6);
+        }
+
+        function loadContactos() {
+            fetch('/api/contactos')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('content-contacts');
+                    container.innerHTML = ''; // Limpiar loading
+
+                    if (data.success && data.contactos.length > 0) {
+                        data.contactos.forEach(c => {
+                            const item = document.createElement('div');
+                            item.className = 'contact-item';
+                            item.onclick = async () => {
+                                const pendingQR = localStorage.getItem('pending_qr_payload');
+                                if (pendingQR) {
+                                    // Asignar QR a este contacto
+                                    if (confirm(`¿Deseas asignar el último código QR escaneado a ${c.nombres}?`)) {
+                                        try {
+                                            const resp = await fetch('/api/scan_contacto/assign', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    contacto_id: c.id,
+                                                    qr_payload: pendingQR
+                                                })
+                                            });
+                                            const resData = await resp.json();
+                                            if (resData.success) {
+                                                localStorage.removeItem('pending_qr_payload');
+                                                window.location.href = `/yapear/monto/${c.id}`;
+                                            } else {
+                                                alert('Error al asignar QR: ' + resData.message);
+                                            }
+                                        } catch (e) {
+                                            console.error(e);
+                                            alert('Error de conexión');
+                                        }
+                                    } else {
+                                        // User cancelled, maybe clear pending? or just proceed normally?
+                                        // Let's proceed normally ignoring the QR for now or allow user to cancel assignment.
+                                        // If cancelled, maybe we shouldn't redirect? 
+                                        // Request says "permitira guardarse esa informacion", implies confirmation or auto action.
+                                        // Keeping clear flow: If cancel, do nothing (stay on list).
+                                        return;
+                                    }
+                                } else {
+                                    window.location.href = `/yapear/monto/${c.id}`;
+                                }
+                            };
+
+                            // Icono editar
+                            // Construimos HTML seguro
+                            const celFmt = formatCelular(String(c.num_celular));
+
+                            item.innerHTML = `
+                            <div class="contact-info">
+                                <div class="contact-name">${c.nombres}</div>
+                                <div class="contact-phone">${celFmt}</div>
+                            </div>
+                            <div class="edit-action" onclick="abrirModalEditar(event, this)" 
+                                 data-id="${c.id}" data-nombre="${c.nombres}" data-celular="${c.num_celular}">
+                                <i class="fa-solid fa-pen" style="color: #ccc; padding: 10px;"></i>
+                            </div>
+                        `;
+                            container.appendChild(item);
+                        });
+                    } else {
+                        container.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #757575;">
+                            <p>No tienes contactos guardados</p>
+                        </div>`;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('content-contacts').innerHTML = '<p style="text-align:center;color:red">Error al cargar</p>';
+                    console.error(err);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadContactos);
+    </script>
+</body>
+
+</html>

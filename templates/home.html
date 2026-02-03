@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yape - Inicio</title>
+    <link rel="stylesheet" href="/static/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="main-container">
+
+        <header class="app-header">
+            <div class="header-left" style="display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-user"></i>
+                <div style="font-size: 16px; font-weight: 500;">
+                    Hola, <span id="user-name">...</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <i class="fa-solid fa-headset"></i>
+                <div class="notification-icon">
+                    <i class="fa-regular fa-bell"></i> <span class="dot"></span>
+                </div>
+            </div>
+        </header>
+
+        <section class="actions-grid">
+            <div class="action-item">
+                <div class="icon-box recargar-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                <span>Recargar<br>celular</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box yapear-servicios-icon">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span class="badge-sorteo" style="background-color: #f59e0b;">Premios</span>
+                </div>
+                <span>Yapear<br>servicios</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box promos-icon"><i class="fa-solid fa-tag"></i></div>
+                <span>Promos</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box aprobar-icon"><i class="fa-solid fa-credit-card"></i></div>
+                <span>Aprobar<br>compras</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box creditos-icon"><i class="fa-solid fa-dollar-sign"></i></div>
+                <span>Créditos</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box tienda-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                <span>Tienda</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box dolares-icon"><i class="fa-solid fa-coins"></i></div>
+                <span>Dólares</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box remesas-icon">
+                    <i class="fa-solid fa-earth-americas"></i>
+                </div>
+                <span>Remesas</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box soat-icon"><i class="fa-solid fa-car"></i></div>
+                <span>SOAT</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box gaming-icon"><i class="fa-solid fa-gamepad"></i></div>
+                <span>Gaming</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box yapear-dolares-icon"><i class="fa-solid fa-map-pin"></i></div>
+                <span>Yapear<br>dólares</span>
+            </div>
+            <div class="action-item">
+                <div class="icon-box ver-todo-icon"><i class="fa-solid fa-plus"></i></div>
+                <span>Ver todo</span>
+            </div>
+        </section>
+
+        <section class="banner-section">
+            <div class="banner-placeholder"></div>
+            <div class="pagination-dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </section>
+
+    </div>
+    <section class="balance-container">
+        <div class="balance-button" id="balance-toggle-btn" style="cursor: pointer;">
+            <div class="balance-left">
+                <i class="fa-regular fa-eye show-icon" id="eye-icon"></i>
+                <span id="balance-label">Mostrar saldo</span>
+            </div>
+            <span id="balance-amount" style="display: none; font-weight: bold; font-size: 15px;"></span>
+        </div>
+        <div class="balance-button">
+            <div class="balance-left">
+                <i class="fa-solid fa-list-ul movements-icon"></i>
+                <span>Mostrar movimientos</span>
+            </div>
+            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+        </div>
+    </section>
+
+    <nav class="bottom-bar">
+        <button class="btn btn-outline" onclick="window.location.href='/qr-scanner'">
+            <i class="fa-solid fa-qrcode"></i> Escanear QR
+        </button>
+        <button class="btn btn-filled" onclick="window.location.href='/yapear'">
+            <i class="fa-regular fa-paper-plane"></i> Yapear
+        </button>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentSaldo = '0.00';
+
+            // Cargar usuario
+            fetch('/api/user')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('user-name').textContent = data.name;
+                    if (data.saldo !== undefined) {
+                        // Formato Perú: 12,000.00
+                        currentSaldo = new Intl.NumberFormat('es-PE', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }).format(parseFloat(data.saldo));
+                    }
+                })
+                .catch(err => console.error(err));
+
+            // Logica toggle saldo
+            const btn = document.getElementById('balance-toggle-btn');
+            const label = document.getElementById('balance-label');
+            const amount = document.getElementById('balance-amount');
+            const icon = document.getElementById('eye-icon');
+            let isVisible = false;
+
+            btn.addEventListener('click', () => {
+                isVisible = !isVisible;
+                if (isVisible) {
+                    label.textContent = 'Ocultar saldo';
+                    amount.textContent = `S/ ${currentSaldo}`;
+                    amount.style.display = 'block';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    label.textContent = 'Mostrar saldo';
+                    amount.style.display = 'none';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

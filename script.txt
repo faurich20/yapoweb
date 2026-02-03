@@ -1,0 +1,58 @@
+CREATE DATABASE IF NOT EXISTS bd_yape;
+USE bd_yape;
+
+CREATE TABLE usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    password CHAR(6) NOT NULL, 
+    nombre_completo VARCHAR(150) NOT NULL,
+    saldo DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    email VARCHAR(100) NULL,
+    pregunta VARCHAR(255) NOT NULL, -- Ej: "¿Cuál es el nombre de tu mascota?"
+    respuesta VARCHAR(255) NOT NULL, -- La respuesta a la pregunta anterior
+    ultima_sesion DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--Tabla de Contactos
+CREATE TABLE contacto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    num_celular CHAR(9) NULL, -- CHAR es mejor para teléfonos (longitud fija)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE scan_contacto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    contacto_id INT NOT NULL,
+    qr_payload VARCHAR(512) NOT NULL, -- Aquí va el string largo que obtienes del escáner
+    es_valido BOOLEAN DEFAULT TRUE,   -- Para marcar si el QR funcionó o dio error
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora exacta del escaneo
+    
+    -- Relación: Este escaneo pertenece a un contacto específico
+    FOREIGN KEY (contacto_id) REFERENCES contacto(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+--Tabla de Pagos
+CREATE TABLE pagos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    contacto_id INT NOT NULL,
+    monto DECIMAL(10, 2) NOT NULL,
+    fecha DATE NOT NULL,
+    hora TIME NOT NULL,
+    cod_seguridad CHAR(3) NOT NULL,
+    -- Aquí están todas las opciones nuevas y el valor por defecto
+    destino ENUM('Yape', 'Plin', 'Niubiz', 'DALE', 'Izipay', 'Culqui', 'PayU') NOT NULL DEFAULT 'Yape',
+    num_operacion CHAR(8) NOT NULL UNIQUE,
+    mensaje VARCHAR(255) NULL, -- Atributo mensaje opcional
+    -- Relación con la tabla contacto (Llave foránea)
+    FOREIGN KEY (contacto_id) REFERENCES contacto(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+
+# abrir terminal compartido localmente
+# ngrok http 5000 

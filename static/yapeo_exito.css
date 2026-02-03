@@ -1,0 +1,393 @@
+:root {
+    --yape-purple: #742284;
+    --yape-purple-dark: #4b1972;
+    --text-dark: #2d2f34;
+    --text-gray: #757575;
+    --bg-light: #f3f4f8;
+    --teal-share: #00cba0;
+    --msg-bg: #f5f0fa;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(to bottom, var(--yape-purple-dark) 0%, var(--yape-purple) 100%);
+    background-attachment: fixed;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding-bottom: 40px;
+    margin-top: 60px;
+}
+
+/* Header App */
+.app-header {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px 20px 5px 20px;
+    margin-bottom: 5px;
+}
+
+.yape-logo-header {
+    height: 56px;
+    object-fit: contain;
+}
+
+.close-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 18px;
+    transition: background 0.2s;
+}
+
+/* Tarjeta Principal */
+.receipt-card {
+    background: white;
+    width: 92%;
+    max-width: 380px;
+    border-radius: 20px;
+    padding: 20px;
+    padding-bottom: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+    margin-bottom: 15px;
+    /* Espacio antes del banner */
+}
+
+/* Encabezado Tarjeta */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.success-title {
+    color: #863596;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.share-btn {
+    background: none;
+    border: none;
+    color: var(--teal-share);
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 0;
+    padding-top: 3px;
+}
+
+/* Monto y Nombre */
+.amount-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0px;
+    color: #333333ee;
+}
+
+.currency {
+    font-size: 28px;
+    font-weight: 700;
+    margin-right: 4px;
+    margin-top: 10px;
+    color: #444444f6;
+}
+
+.amount {
+    font-size: 52px;
+    font-weight: 600;
+    letter-spacing: -2px;
+    color: #2c2c2cde;
+    font-family: 'Roboto', sans-serif;
+}
+
+.recipient-name {
+    font-size: 21px;
+    font-weight: 600;
+    color: #222222ec;
+    margin-bottom: 12px;
+}
+
+/* Fecha y Hora */
+.date-row {
+    display: flex;
+    align-items: center;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+    gap: 8px;
+    font-weight: 400;
+}
+
+.separator {
+    color: #ccc;
+    font-weight: 300;
+}
+
+/* Mensaje */
+.message-container {
+    background-color: var(--msg-bg);
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.message-icon {
+    color: #555;
+    font-size: 16px;
+}
+
+/* Codigo Seguridad */
+.security-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.section-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #909090;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+}
+
+.info-icon {
+    color: var(--teal-share);
+    font-size: 16px;
+}
+
+.security-digits {
+    display: flex;
+    gap: 6px;
+}
+
+.digit-box {
+    background-color: #f0f2f5;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #333;
+    font-size: 17px;
+}
+
+/* Datos Transaccion */
+.transaction-section {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+}
+
+.transaction-title {
+    margin-bottom: 18px;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 14px;
+    color: var(--text-dark);
+}
+
+.data-row span:first-child {
+    color: #555;
+    font-weight: 400;
+}
+
+.data-row .bold {
+    font-weight: 600;
+    color: #111;
+}
+
+/* --- ESTILOS BANNER KFC (Refinado) --- */
+.promo-section-wrapper {
+    background-color: #581b68;
+    /* Morado Yape Banner */
+    width: 92%;
+    max-width: 380px;
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.promo-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.promo-title {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.badge-new {
+    background-color: #ffc107;
+    color: #3e2723;
+    padding: 2px 7px;
+    font-size: 11px;
+    border-radius: 4px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.promo-card {
+    background-color: white;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    height: 120px;
+    /* Altura ajustada */
+}
+
+/* Lado Izq: Imagen (62%) */
+.promo-img-container {
+    width: 69%;
+    height: 100%;
+    background-color: #fff;
+    position: relative;
+}
+
+.promo-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 16px;
+}
+
+/* Lado Der: Info (38%) */
+.promo-content {
+    width: 35%;
+    padding: 10px 6px;
+    /* Menos padding lateral para que quepa todo */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.promo-icon-badge {
+    position: absolute;
+    top: 8px;
+    right: 5px;
+    color: #ffc107;
+    font-size: 14px;
+}
+
+.promo-text {
+    font-size: 9px;
+    line-height: 1.25;
+    color: #111;
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+
+.promo-text strong {
+    font-weight: 750;
+    font-size: 11px;
+}
+
+.promo-price-container {
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
+.promo-label {
+    display: block;
+    font-size: 7px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #000;
+    margin-bottom: -3px;
+    letter-spacing: 0.5px;
+}
+
+/* Row para alinear S/ 56 .90 */
+.promo-price-row {
+    display: flex;
+    align-items: flex-start;
+}
+
+.promo-symbol {
+    font-size: 11px;
+    font-weight: 800;
+    margin-top: 4px;
+    /* Para alinear visualmente top */
+    margin-right: 2px;
+    color: #000;
+}
+
+.promo-amount-int {
+    font-size: 38px;
+    /* Gigante */
+    font-weight: 900;
+    color: #000;
+    line-height: 0.9;
+    letter-spacing: -2px;
+}
+
+.promo-decimals {
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 5px;
+    color: #000;
+}
+
+.btn-promo-action {
+    background-color: #00cba0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 2px;
+    font-size: 10px;
+    font-weight: 200;
+    width: 77%;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
