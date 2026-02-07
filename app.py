@@ -4,6 +4,7 @@ import db
 import random
 import string
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -127,7 +128,9 @@ def realizar_pago():
     # Usaremos digitos aleatorios por simplicidad, o mezclado. La imagen de yape suele tener numeros.
     num_operacion = ''.join(random.choices(string.digits, k=8)) 
 
-    fecha_actual = datetime.now()
+    # Usamos pytz para la zona horaria de Perú
+    peru_tz = pytz.timezone('America/Lima')
+    fecha_actual = datetime.now(peru_tz)
     fecha_str = fecha_actual.strftime('%Y-%m-%d')
     hora_str = fecha_actual.strftime('%H:%M:%S')
     
