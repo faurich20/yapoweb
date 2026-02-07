@@ -105,12 +105,83 @@
             </div>
             <span id="balance-amount" style="display: none; font-weight: bold; font-size: 15px;"></span>
         </div>
-        <div class="balance-button">
-            <div class="balance-left">
-                <i class="fa-solid fa-list-ul movements-icon"></i>
-                <span>Mostrar movimientos</span>
+        <div class="movements-container">
+            <div class="balance-button" id="movements-toggle-btn">
+                <div class="balance-left">
+                    <i class="fa-solid fa-file-invoice movements-icon" id="movements-main-icon"
+                        style="color: #6a1b9a;"></i> <!-- Icon updated to look more like document -->
+                    <span id="movements-label">Mostrar movimientos</span>
+                </div>
+                <i class="fa-solid fa-chevron-down arrow-icon" id="movements-arrow-icon"></i>
             </div>
-            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+            <div id="movements-list" class="movements-list" style="display: none;">
+                <!-- *** *** 408 -->
+                <div class="movement-item">
+                    <div class="movement-info">
+                        <div class="movement-title">*** *** 408</div>
+                        <div class="movement-date">Ayer 9:22 pm</div>
+                    </div>
+                    <div class="movement-amount negative">- S/ 7.50</div>
+                </div>
+
+                <!-- Yape -->
+                <div class="movement-item">
+                    <div class="movement-info">
+                        <div class="movement-title">Yape</div>
+                        <div class="movement-date">Ayer 6:58 pm - Recompensas Gami...</div>
+                    </div>
+                    <div class="movement-amount positive">S/ 0.18</div>
+                </div>
+
+                <!-- Doris Ban* -->
+                <div class="movement-item">
+                    <div class="movement-info">
+                        <div class="movement-title">Doris Ban*</div>
+                        <div class="movement-date">Ayer 2:01 pm</div>
+                    </div>
+                    <div class="movement-amount negative">- S/ 5.00</div>
+                </div>
+
+                <!-- Anggie Inf* -->
+                <div class="movement-item">
+                    <div class="movement-info">
+                        <div class="movement-title">Anggie Inf*</div>
+                        <div class="movement-date">Ayer 1:43 pm</div>
+                    </div>
+                    <div class="movement-amount negative">- S/ 9.50</div>
+                </div>
+
+                <!-- Yape -->
+                <div class="movement-item">
+                    <div class="movement-info">
+                        <div class="movement-title">Yape</div>
+                        <div class="movement-date">04 feb. 2026 - 5:14 pm - Recompen...</div>
+                    </div>
+                    <div class="movement-amount positive">S/ 0.11</div>
+                </div>
+
+                <!-- Yape -->
+                <div class="movement-item">
+                    <div class="movement-info">
+                        <div class="movement-title">Yape</div>
+                        <div class="movement-date">04 feb. 2026 - 5:14 pm - Recompen...</div>
+                    </div>
+                    <div class="movement-amount positive">S/ 0.17</div>
+                </div>
+
+                <!-- Yape -->
+                <div class="movement-item">
+                    <div class="movement-info">
+                        <div class="movement-title">Yape</div>
+                        <div class="movement-date">04 feb. 2026 - 5:04 pm - Recompen...</div>
+                    </div>
+                    <div class="movement-amount positive">S/ 0.03</div>
+                </div>
+
+                <div class="view-all-container">
+                    <a href="#" class="view-all-link">Ver todos</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -162,6 +233,35 @@
                     amount.style.display = 'none';
                     icon.classList.remove('fa-eye-slash');
                     icon.classList.add('fa-eye');
+                }
+            });
+
+            // Logica toggle movimientos
+            const moveBtn = document.getElementById('movements-toggle-btn');
+            const moveLabel = document.getElementById('movements-label');
+            const moveList = document.getElementById('movements-list');
+            const moveArrow = document.getElementById('movements-arrow-icon');
+            const moveMainIcon = document.getElementById('movements-main-icon');
+            let isMovementsVisible = false;
+
+            moveBtn.addEventListener('click', () => {
+                isMovementsVisible = !isMovementsVisible;
+                if (isMovementsVisible) {
+                    moveLabel.textContent = 'Ocultar movimientos';
+                    moveList.style.display = 'block';
+                    moveArrow.classList.remove('fa-chevron-down');
+                    moveArrow.classList.add('fa-chevron-up');
+                    moveBtn.classList.add('expanded');
+                    // Change icon to document/lines if needed, but image shows same icon or maybe slightly different. 
+                    // Image 2 shows specific icon? actually it looks like a document with lines.
+                    // The first image shows list-ul.
+                    // Let's keep list-ul for now unless specified otherwise.
+                } else {
+                    moveLabel.textContent = 'Mostrar movimientos';
+                    moveList.style.display = 'none';
+                    moveArrow.classList.remove('fa-chevron-up');
+                    moveArrow.classList.add('fa-chevron-down');
+                    moveBtn.classList.remove('expanded');
                 }
             });
         });

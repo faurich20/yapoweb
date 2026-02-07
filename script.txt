@@ -56,3 +56,5 @@ CREATE TABLE pagos (
 
 # abrir terminal compartido localmente
 # ngrok http 5000 
+# Si en el futuro necesitas subir cambios en db.py, 
+# deberás revertir esto con: git update-index --no-skip-worktree db.py

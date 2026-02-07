@@ -341,3 +341,114 @@ body {
     border: none;
     color: var(--color-white);
 }
+
+/* --- MOVEMENTS SECTION --- */
+
+.movements-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Modify the button when expanded */
+.balance-button.expanded {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: none;
+    /* Remove shadow to blend with list */
+}
+
+
+.movement-amount {
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.movement-amount.negative {
+    color: #e11d48;
+}
+
+.movement-amount.positive {
+    color: #333;
+}
+
+
+.movements-list {
+    background-color: var(--color-white);
+    padding: 0 15px 15px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-top: -5px;
+    /* More overlap to hide border radius of button */
+    padding-top: 5px;
+    max-height: 380px;
+    /* Increased height as per image showing many items */
+    overflow-y: auto;
+}
+
+/* Custom scrollbar for webkit */
+.movements-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.movements-list::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+.view-all-container {
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+.view-all-link {
+    color: var(--color-turquoise) !important;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+/* Movement Items */
+.movement-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.movement-item:last-child {
+    border-bottom: none;
+    padding-bottom: 5px;
+}
+
+.movement-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+    margin-right: 15px;
+}
+
+.movement-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-dark);
+}
+
+.movement-date {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* max-width is handled by flex container limit */
+    font-size: 13px;
+    color: #888;
+}
+
+/* Fix Balance Amount Color */
+#balance-amount {
+    color: #333333 !important;
+}

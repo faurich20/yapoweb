@@ -53,13 +53,13 @@ def identity(payload):
 
 @jwt.unauthorized_loader
 def unauthorized_callback(callback):
-    if request.path == '/': 
+    if not request.path.startswith('/api/'):
         return redirect('/login', 302)
     return jsonify({'success': False, 'message': 'Acceso no autorizado'}), 401
 
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_payload):
-    if request.path == '/':
+    if not request.path.startswith('/api/'):
         return redirect('/login', 302)
     return jsonify({'success': False, 'message': 'Token expirado'}), 401
 
@@ -126,7 +126,7 @@ def realizar_pago():
     # Generar num_operacion aleatorio de 8 digitos (el script dice CHAR(8) NOT NULL UNIQUE)
     # Usaremos digitos aleatorios por simplicidad, o mezclado. La imagen de yape suele tener numeros.
     num_operacion = ''.join(random.choices(string.digits, k=8)) 
-    
+
     fecha_actual = datetime.now()
     fecha_str = fecha_actual.strftime('%Y-%m-%d')
     hora_str = fecha_actual.strftime('%H:%M:%S')
@@ -170,7 +170,7 @@ def api_obtener_pago(num_operacion):
         f = pago['fecha']
         # Convertir a string para JSON serializable
         fecha_fmt = f"{f.day} {meses[f.month]}. {f.year}"
-        
+
         h = pago['hora']
         seconds = h.total_seconds()
         hours = int(seconds // 3600)
@@ -184,7 +184,7 @@ def api_obtener_pago(num_operacion):
         cel_masked = f"*** *** {str(cel)[-3:]}" if cel else None
 
         cod_seguridad = pago['cod_seguridad'] # Esto es string en DB
-        
+
         return jsonify({
             'success': True,
             'pago': {
