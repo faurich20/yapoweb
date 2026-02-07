@@ -128,9 +128,8 @@ def realizar_pago():
     # Usaremos digitos aleatorios por simplicidad, o mezclado. La imagen de yape suele tener numeros.
     num_operacion = ''.join(random.choices(string.digits, k=8)) 
 
-    # Usamos pytz para la zona horaria de Perú
-    peru_tz = pytz.timezone('America/Lima')
-    fecha_actual = datetime.now(peru_tz)
+    # Usamos datetime.utcnow() explícitamente para guardar en UTC
+    fecha_actual = datetime.utcnow()
     fecha_str = fecha_actual.strftime('%Y-%m-%d')
     hora_str = fecha_actual.strftime('%H:%M:%S')
     
@@ -167,21 +166,58 @@ def api_obtener_pago(num_operacion):
         return jsonify({'success': False, 'message': str(e)}), 500
 
     if pago:
-        # Formateo manual para JSON
+        # Convertir a zona horaria de Perú al leer
+        # Asumimos que la BD guarda en UTC (ya sea porque TiDB es UTC nativo o porque usamos utcnow())
+        try:
+            # Combinar fecha y hora
+            fecha_bd = pago['fecha'] # date
+            hora_bd = pago['hora']   # timedelta (pymysql)
+            
+            # Crear datetime ingenuo (naive)
+            dt_naive = datetime.combine(fecha_bd, datetime.min.time()) + hora_bd
+            
+            # Asignar UTC
+            dt_utc = pytz.utc.localize(dt_naive)
+            
+            # Convertir a Lima
+            peru_tz = pytz.timezone('America/Lima')
+            dt_peru = dt_utc.astimezone(peru_tz)
+            
+            # Extraer nueva fecha y hora
+            f = dt_peru.date()
+            h_time = dt_peru.time()
+        except Exception as e:
+            # Fallback si falla la conversion
+            print(f"Error timezone conversion: {e}")
+            f = pago['fecha']
+            # h será usado abajo desde pago['hora'] si falla
+            h_time = None
+
         meses = {1:'ene', 2:'feb', 3:'mar', 4:'abr', 5:'may', 6:'jun', 
                  7:'jul', 8:'ago', 9:'sep', 10:'oct', 11:'nov', 12:'dic'}
-        f = pago['fecha']
-        # Convertir a string para JSON serializable
+        
+        # Formato de fecha
         fecha_fmt = f"{f.day} {meses[f.month]}. {f.year}"
 
-        h = pago['hora']
-        seconds = h.total_seconds()
-        hours = int(seconds // 3600)
-        minutes = int((seconds % 3600) // 60)
-        ampm = 'a. m.' if hours < 12 else 'p. m.'
-        h12 = hours if hours <= 12 else hours - 12
-        h12 = 12 if h12 == 0 else h12
-        hora_fmt = f"{h12}:{minutes:02d} {ampm}"
+        # Formato de hora
+        if h_time:
+             # Usamos el objeto time convertido
+             hours = h_time.hour
+             minutes = h_time.minute
+             ampm = 'p. m.' if hours >= 12 else 'a. m.' # Match image: "p. m."
+             h12 = hours if hours <= 12 else hours - 12
+             h12 = 12 if h12 == 0 else h12
+             hora_fmt = f"{h12}:{minutes:02d} {ampm}"
+        else:
+            # Fallback a logica original con timedelta
+            h = pago['hora']
+            seconds = h.total_seconds()
+            hours = int(seconds // 3600)
+            minutes = int((seconds % 3600) // 60)
+            ampm = 'a. m.' if hours < 12 else 'p. m.'
+            h12 = hours if hours <= 12 else hours - 12
+            h12 = 12 if h12 == 0 else h12
+            hora_fmt = f"{h12}:{minutes:02d} {ampm}"
         
         cel = pago['num_celular']
         cel_masked = f"*** *** {str(cel)[-3:]}" if cel else None
