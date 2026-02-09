@@ -508,7 +508,13 @@ def api_movements():
             else:
                 time_str = ""
             
-            full_date_str = f"{date_str} {time_str}" if time_str else date_str
+            # Determine separator
+            if f == today_date or (today_date - f).days == 1:
+                separator = " "
+            else:
+                separator = " - "
+
+            full_date_str = f"{date_str}{separator}{time_str}" if time_str else date_str
 
             movements.append({
                 'num_operacion': p['num_operacion'],
