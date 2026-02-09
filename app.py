@@ -501,7 +501,7 @@ def api_movements():
             if h_time:
                 hours = h_time.hour
                 minutes = h_time.minute
-                ampm = 'p. m.' if hours >= 12 else 'a. m.'
+                ampm = 'pm' if hours >= 12 else 'am'
                 h12 = hours if hours <= 12 else hours - 12
                 h12 = 12 if h12 == 0 else h12
                 time_str = f"{h12}:{minutes:02d} {ampm}"
