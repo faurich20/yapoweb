@@ -236,12 +236,55 @@
                 }
             });
 
+            // Cargar movimientos dinámicamente
+            function loadMovements() {
+                fetch('/api/movements')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            const listContainer = document.getElementById('movements-list');
+                            listContainer.innerHTML = ''; // Limpiar lista actual
+
+                            data.movements.forEach(m => {
+                                const item = document.createElement('div');
+                                item.className = 'movement-item';
+                                item.style.cursor = 'pointer';
+                                item.onclick = () => window.location.href = `/yapear/exito/${m.num_operacion}`;
+
+                                const amountClass = m.is_negative ? 'negative' : 'positive';
+                                const sign = m.is_negative ? '- ' : '';
+                                const amountFormatted = parseFloat(m.amount).toFixed(2);
+
+                                item.innerHTML = `
+                                    <div class="movement-info">
+                                        <div class="movement-title">${m.title}</div>
+                                        <div class="movement-date">${m.date}</div>
+                                    </div>
+                                    <div class="movement-amount ${amountClass}">
+                                        ${sign}${m.currency} ${amountFormatted}
+                                    </div>
+                                `;
+                                listContainer.appendChild(item);
+                            });
+
+                            // Agregar botón "Ver todos" al final
+                            const viewAllDiv = document.createElement('div');
+                            viewAllDiv.className = 'view-all-container';
+                            viewAllDiv.innerHTML = '<a href="#" class="view-all-link">Ver todos</a>';
+                            listContainer.appendChild(viewAllDiv);
+                        }
+                    })
+                    .catch(err => console.error('Error loading movements:', err));
+            }
+
+            // Cargar movimientos al iniciar
+            loadMovements();
+
             // Logica toggle movimientos
             const moveBtn = document.getElementById('movements-toggle-btn');
             const moveLabel = document.getElementById('movements-label');
             const moveList = document.getElementById('movements-list');
             const moveArrow = document.getElementById('movements-arrow-icon');
-            const moveMainIcon = document.getElementById('movements-main-icon');
             let isMovementsVisible = false;
 
             moveBtn.addEventListener('click', () => {
@@ -252,10 +295,6 @@
                     moveArrow.classList.remove('fa-chevron-down');
                     moveArrow.classList.add('fa-chevron-up');
                     moveBtn.classList.add('expanded');
-                    // Change icon to document/lines if needed, but image shows same icon or maybe slightly different. 
-                    // Image 2 shows specific icon? actually it looks like a document with lines.
-                    // The first image shows list-ul.
-                    // Let's keep list-ul for now unless specified otherwise.
                 } else {
                     moveLabel.textContent = 'Mostrar movimientos';
                     moveList.style.display = 'none';

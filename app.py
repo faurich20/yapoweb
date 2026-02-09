@@ -444,6 +444,87 @@ def editar_contacto():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/movements')
+@jwt_required()
+def api_movements():
+    try:
+        # Get user_id if needed, but current schema doesn't link payments to users explicitly properly 
+        # (assuming single user context or user_id logic is implicit in future). 
+        # For now, fetching all payments as per existing logic.
+        
+        conexion = db.obtener_conexion(con_dict=True)
+        with conexion.cursor() as cursor:
+            # Join with contato to get names
+            cursor.execute("""
+                SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino
+                FROM pagos p
+                JOIN contacto c ON p.contacto_id = c.id
+                ORDER BY p.fecha DESC, p.hora DESC
+                LIMIT 7
+            """)
+            pagos = cursor.fetchall()
+        conexion.close()
+
+        movements = []
+        meses = {1:'ene.', 2:'feb.', 3:'mar.', 4:'abr.', 5:'may.', 6:'jun.', 
+                 7:'jul.', 8:'ago.', 9:'sep.', 10:'oct.', 11:'nov.', 12:'dic.'} # Added dots as per image
+        
+        # Determine "Ayer"
+        peru_tz = pytz.timezone('America/Lima')
+        now_peru = datetime.now(peru_tz) # Current time in Peru
+        today_date = now_peru.date()
+
+        for p in pagos:
+            # Timezone conversion logic (same as in api_obtener_pago)
+            try:
+                fecha_bd = p['fecha']
+                hora_bd = p['hora']
+                dt_naive = datetime.combine(fecha_bd, datetime.min.time()) + hora_bd
+                dt_utc = pytz.utc.localize(dt_naive)
+                dt_peru = dt_utc.astimezone(peru_tz)
+                f = dt_peru.date()
+                h_time = dt_peru.time()
+            except:
+                f = p['fecha']
+                h_time = None # Fallback logic if needed, but using h_time for formatting
+
+            # Date Formatting
+            if f == today_date:
+                date_str = "Hoy"
+            elif (today_date - f).days == 1:
+                date_str = "Ayer"
+            else:
+                # e.g. "04 feb. 2026"
+                date_str = f"{f.day:02d} {meses[f.month]} {f.year}"
+
+            # Time Formatting
+            if h_time:
+                hours = h_time.hour
+                minutes = h_time.minute
+                ampm = 'p. m.' if hours >= 12 else 'a. m.'
+                h12 = hours if hours <= 12 else hours - 12
+                h12 = 12 if h12 == 0 else h12
+                time_str = f"{h12}:{minutes:02d} {ampm}"
+            else:
+                time_str = ""
+            
+            full_date_str = f"{date_str} {time_str}" if time_str else date_str
+
+            movements.append({
+                'num_operacion': p['num_operacion'],
+                'title': p['nombres'], # Or p['destino'] if Yape?
+                'date': full_date_str,
+                'amount': float(p['monto']),
+                'currency': 'S/',
+                'is_negative': True # Assuming all payments are outflows for now
+            })
+
+        return jsonify({'success': True, 'movements': movements})
+
+    except Exception as e:
+        print(f"Error api/movements: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 if __name__ == '__main__':
     # Ejecuta la aplicación en modo debug
     app.run(debug=True, port=5000)
