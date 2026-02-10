@@ -12,6 +12,8 @@ body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
     background-color: var(--color-bg-gray);
+    /* Padding superior para que el header fijo no tape el contenido */
+    padding-top: 50px;
     /* Padding inferior para que la barra fija no tape el contenido */
     padding-bottom: 80px;
 }
@@ -26,10 +28,17 @@ body {
 
 /* --- HEADER --- */
 .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: var(--color-purple);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 15px;
+    box-sizing: border-box;
     /* Reducido de 10px 15px */
 }
 
