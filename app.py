@@ -362,6 +362,11 @@ def api_obtener_contactos():
 def yapear():
     return render_template('yapear.html')
 
+@app.route('/perfil')
+@jwt_required()
+def perfil():
+    return render_template('perfil.html')
+
 @app.route('/api/contacto/<int:contacto_id>')
 @jwt_required()
 def api_obtener_contacto(contacto_id):
@@ -515,14 +520,26 @@ def api_movements():
                 separator = " - "
 
             full_date_str = f"{date_str}{separator}{time_str}" if time_str else date_str
+            
+            # Append message if exists (e.g. " - Recompensa...")
+            if p['mensaje']:
+                # Ensure it starts with " - " or just append
+                # Based on mock: "Ayer 6:58 pm - Recompensas Gami..."
+                full_date_str += f" - {p['mensaje']}"
+
+            is_negative = True
+            # Simple heuristic for demo: if message contains "Recompensas" or "Yape", maybe positive?
+            # Or if amount is small and from Yape?
+            if p['nombres'] == 'Yape' and ('Recompensas' in (p['mensaje'] or '') or p['monto'] < 1.0):
+                is_negative = False
 
             movements.append({
                 'num_operacion': p['num_operacion'],
-                'title': p['nombres'], # Or p['destino'] if Yape?
+                'title': p['nombres'], 
                 'date': full_date_str,
                 'amount': float(p['monto']),
                 'currency': 'S/',
-                'is_negative': True # Assuming all payments are outflows for now
+                'is_negative': is_negative 
             })
 
         return jsonify({'success': True, 'movements': movements})

@@ -1,0 +1,182 @@
+:root {
+    --color-purple: #742284;
+    /* Main Yape purple */
+    --color-bg-gray: #f5f6fa;
+    --color-text-dark: #333;
+    --color-text-light: #666;
+    --color-border: #e0e0e0;
+    --color-white: #ffffff;
+    --color-yellow: #ffc107;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    background-color: var(--color-bg-gray);
+    color: var(--color-text-dark);
+}
+
+.perfil-header {
+    background-color: var(--color-white);
+    padding: 15px 20px 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* Make header sticky */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Header adjustments */
+.header-top {
+    margin-bottom: 20px;
+}
+
+/* New container for Title and Help button */
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* Align top of title and button */
+}
+
+.header-title h1 {
+    margin: 0;
+    font-size: 28px;
+    color: var(--color-purple);
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.header-title p {
+    margin: 5px 0 0;
+    color: var(--color-text-light);
+    font-size: 15px;
+}
+
+.help-btn {
+    background-color: #f3e5f5;
+    /* Light purple tint similar to image */
+    color: var(--color-purple);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0;
+    /* aligned with top */
+}
+
+/* Sections */
+.content-container {
+    padding: 0;
+}
+
+.profile-section {
+    margin-top: 25px;
+}
+
+.section-title {
+    font-size: 15px;
+    color: var(--color-purple);
+    /* Purple based on image subtitle style? No, usually section headers are gray/dark. 
+                                  Checking image: "Mi cuenta" text looks dark gray/purple? 
+                                  Actually in image "Mi cuenta" looks dark/purple. 
+                                  Let's use dark purple font-weight bold. */
+    margin: 0 0 10px 20px;
+    font-weight: 600;
+}
+
+.menu-list {
+    background-color: var(--color-white);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    text-decoration: none;
+    color: inherit;
+    /* Hover effect */
+    transition: background-color 0.2s;
+}
+
+.menu-item:active {
+    background-color: #f9f9f9;
+}
+
+.item-icon {
+    width: 24px;
+    text-align: center;
+    color: var(--color-purple);
+    font-size: 20px;
+    margin-right: 15px;
+}
+
+.item-content {
+    flex: 1;
+    padding: 18px 20px 18px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-content.no-border {
+    border-bottom: none;
+}
+
+/* Specific Icons colors/tweaks if needed */
+.fa-heart-crack {
+    color: var(--color-purple);
+}
+
+/* Badges */
+.badge-activar {
+    background-color: var(--color-yellow);
+    color: var(--color-text-dark);
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+/* Footer Info */
+.footer-info {
+    padding: 20px 20px 10px;
+    font-size: 13px;
+    color: var(--color-purple);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.footer-info p {
+    margin: 4px 0;
+}
+
+.footer-actions {
+    margin-bottom: 40px;
+    margin-top: 10px;
+}
+
+.footer-actions .menu-list {
+    background-color: transparent;
+    border: none;
+}
+
+.footer-actions .menu-item {
+    color: var(--color-purple);
+}
+
+.footer-actions .item-content {
+    border-bottom: none;
+    padding: 8px 20px 8px 0;
+    /* Reduced padding */
+    font-size: 14px;
+    /* Reduced font size to match footer style */
+}
