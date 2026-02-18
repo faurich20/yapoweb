@@ -461,7 +461,7 @@ def api_movements():
         with conexion.cursor() as cursor:
             # Join with contato to get names
             cursor.execute("""
-                SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino
+                SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino, p.mensaje
                 FROM pagos p
                 JOIN contacto c ON p.contacto_id = c.id
                 ORDER BY p.fecha DESC, p.hora DESC
