@@ -548,6 +548,94 @@ def api_movements():
         print(f"Error api/movements: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/movements/history')
+@jwt_required()
+def api_movements_history():
+    try:
+        conexion = db.obtener_conexion(con_dict=True)
+        with conexion.cursor() as cursor:
+            # Get last 2 months of movements
+            cursor.execute("""
+                SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino, p.mensaje
+                FROM pagos p
+                JOIN contacto c ON p.contacto_id = c.id
+                WHERE p.fecha >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH)
+                ORDER BY p.fecha DESC, p.hora DESC
+            """)
+            pagos = cursor.fetchall()
+        conexion.close()
+
+        movements_by_month = {}
+        meses = {1:'Enero', 2:'Febrero', 3:'Marzo', 4:'Abril', 5:'Mayo', 6:'Junio', 
+                 7:'Julio', 8:'Agosto', 9:'Septiembre', 10:'Octubre', 11:'Noviembre', 12:'Diciembre'}
+        meses_short = {1:'ene.', 2:'feb.', 3:'mar.', 4:'abr.', 5:'may.', 6:'jun.', 
+                       7:'jul.', 8:'ago.', 9:'sep.', 10:'oct.', 11:'nov.', 12:'dic.'}
+        
+        peru_tz = pytz.timezone('America/Lima')
+
+        for p in pagos:
+            try:
+                fecha_bd = p['fecha']
+                hora_bd = p['hora']
+                dt_naive = datetime.combine(fecha_bd, datetime.min.time()) + hora_bd
+                dt_utc = pytz.utc.localize(dt_naive)
+                dt_peru = dt_utc.astimezone(peru_tz)
+                f = dt_peru.date()
+                h_time = dt_peru.time()
+            except:
+                f = p['fecha']
+                h_time = None
+
+            month_year = f"{meses[f.month]} {f.year}"
+            if month_year not in movements_by_month:
+                movements_by_month[month_year] = []
+
+            date_str = f"{f.day:02d} {meses_short[f.month]} {f.year}"
+
+            if h_time:
+                hours = h_time.hour
+                minutes = h_time.minute
+                ampm = 'pm' if hours >= 12 else 'am'
+                h12 = hours if hours <= 12 else hours - 12
+                h12 = 12 if h12 == 0 else h12
+                time_str = f"{h12}:{minutes:02d} {ampm}"
+            else:
+                time_str = ""
+
+            full_date_str = f"{date_str} - {time_str}" if time_str else date_str
+
+            if p['mensaje']:
+                full_date_str += f" - {p['mensaje']}"
+
+            is_negative = True
+            if p['nombres'] == 'Yape' and ('Recompensas' in (p['mensaje'] or '') or p['monto'] < 1.0):
+                is_negative = False
+
+            # Custom name masking logic could go here if wanted, sticking to existing style for now
+            title = p['nombres']
+
+            movements_by_month[month_year].append({
+                'num_operacion': p['num_operacion'],
+                'title': title,
+                'date': full_date_str,
+                'amount': float(p['monto']),
+                'currency': 'S/',
+                'is_negative': is_negative
+            })
+
+        # Convert dictionary to ordered list structure
+        result = [{'month_year': k, 'movements': v} for k, v in movements_by_month.items()]
+        return jsonify({'success': True, 'history': result})
+
+    except Exception as e:
+        print(f"Error api/movements/history: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/movimientos')
+@jwt_required()
+def movimientos():
+    return render_template('movimientos.html')
+
 if __name__ == '__main__':
     # Ejecuta la aplicación en modo debug
     app.run(debug=True, port=5000)

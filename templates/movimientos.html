@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yape - Movimientos</title>
+    <link rel="stylesheet" href="/static/movimientos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="app-header">
+        <div class="header-left" onclick="window.history.back()">
+            <i class="fa-solid fa-xmark"></i>
+            <span class="header-title">Movimientos</span>
+        </div>
+        <div class="header-right">
+            <i class="fa-regular fa-envelope"></i>
+            <i class="fa-solid fa-sliders"></i>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div id="history-list" class="history-list">
+            <div style="text-align: center; margin-top: 30px; font-family: sans-serif; color: #666;">
+                <i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i>
+                Cargando movimientos...
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/movimientos.js"></script>
+</body>
+
+</html>

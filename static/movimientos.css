@@ -1,0 +1,112 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f7f3f9; /* Light purple-ish tint matching screen */
+}
+
+.app-header {
+    background-color: #9c27b0; /* Bright purple header */
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.header-left .fa-xmark {
+    font-size: 22px;
+}
+
+.header-title {
+    font-weight: 500;
+    font-size: 19px;
+    margin-left: 5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 20px;
+}
+
+.main-container {
+    padding-bottom: 20px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.month-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.month-header {
+    padding: 20px 20px 8px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #8e24aa; /* Purple color matching image month text */
+}
+
+.movement-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.movement-item:active {
+    background-color: rgba(0,0,0,0.03);
+}
+
+.movement-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.movement-title {
+    color: #444;
+    font-size: 15.5px;
+    font-weight: 400;
+}
+
+.movement-date {
+    color: #999;
+    font-size: 13.5px;
+}
+
+.movement-amount {
+    font-weight: 500;
+    font-size: 15.5px;
+}
+
+.movement-amount.negative {
+    color: #e91e63; /* Pinkish-red for negative as per the screenshot */
+}
+
+.movement-amount.positive {
+    color: #444; /* Dark for positive like S/ 9.00 in the image */
+}
