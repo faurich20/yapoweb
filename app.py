@@ -246,6 +246,11 @@ def yapeo_exito(num_operacion):
     # Ya no pasamos datos, el frontend los pedirá por API
     return render_template('yapeo_exito.html')
 
+@app.route('/yapear/exito_edit/<num_operacion>')
+@jwt_required()
+def yapeo_exito_edit(num_operacion):
+    return render_template('yapeo_exito_edit.html')
+
 @app.route('/api/user')
 @jwt_required()
 def api_user():
@@ -551,17 +556,37 @@ def api_movements():
 @app.route('/api/movements/history')
 @jwt_required()
 def api_movements_history():
+    days_filter = request.args.get('days', type=int)
+
     try:
         conexion = db.obtener_conexion(con_dict=True)
         with conexion.cursor() as cursor:
-            # Get last 2 months of movements
-            cursor.execute("""
-                SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino, p.mensaje
-                FROM pagos p
-                JOIN contacto c ON p.contacto_id = c.id
-                WHERE p.fecha >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH)
-                ORDER BY p.fecha DESC, p.hora DESC
-            """)
+            if days_filter is not None:
+                if days_filter == 0:
+                    cursor.execute("""
+                        SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino, p.mensaje
+                        FROM pagos p
+                        JOIN contacto c ON p.contacto_id = c.id
+                        WHERE p.fecha = CURRENT_DATE()
+                        ORDER BY p.fecha DESC, p.hora DESC
+                    """)
+                else:
+                    cursor.execute("""
+                        SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino, p.mensaje
+                        FROM pagos p
+                        JOIN contacto c ON p.contacto_id = c.id
+                        WHERE p.fecha >= DATE_SUB(CURRENT_DATE(), INTERVAL %s DAY)
+                        ORDER BY p.fecha DESC, p.hora DESC
+                    """, (days_filter,))
+            else:
+                # Default behavior: last 2 months
+                cursor.execute("""
+                    SELECT p.num_operacion, p.monto, p.fecha, p.hora, c.nombres, p.destino, p.mensaje
+                    FROM pagos p
+                    JOIN contacto c ON p.contacto_id = c.id
+                    WHERE p.fecha >= DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH)
+                    ORDER BY p.fecha DESC, p.hora DESC
+                """)
             pagos = cursor.fetchall()
         conexion.close()
 

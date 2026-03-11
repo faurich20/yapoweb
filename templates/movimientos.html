@@ -11,13 +11,24 @@
 
 <body>
     <header class="app-header">
-        <div class="header-left" onclick="window.history.back()">
+        <div class="header-left" onclick="window.location.href='/'">
             <i class="fa-solid fa-xmark"></i>
             <span class="header-title">Movimientos</span>
         </div>
         <div class="header-right">
             <i class="fa-regular fa-envelope"></i>
-            <i class="fa-solid fa-sliders"></i>
+            <div class="filter-container">
+                <i class="fa-solid fa-sliders" id="filter-icon" style="cursor: pointer;"></i>
+                <div id="filter-dropdown" class="filter-dropdown">
+                    <ul class="filter-options">
+                        <li data-days="0">Solo hoy</li>
+                        <li data-days="7">Últimos 7 días</li>
+                        <li data-days="15">Últimos 15 días</li>
+                        <li data-days="30">Últimos 30 días</li>
+                        <li data-days="90">Últimos 90 días</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </header>
 
