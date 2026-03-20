@@ -35,12 +35,40 @@ body {
     border-radius: 12px;
     margin-bottom: 30px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.qr-container:active {
+    transform: scale(0.96);
 }
 
 .qr-image {
     width: 140px;
     height: 140px;
     display: block;
+}
+
+.qr-empty-state {
+    width: 140px;
+    height: 140px;
+    display: none;
+    /* hidden by default, toggled via display:flex JS */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f6f6f9;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    color: #999;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.qr-empty-state i {
+    font-size: 36px;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+    opacity: 0.5;
 }
 
 .options-row {

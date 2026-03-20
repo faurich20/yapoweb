@@ -38,7 +38,7 @@
                         <span>Mis datos</span>
                     </div>
                 </a>
-                <a href="#" class="menu-item">
+                <a href="#" class="menu-item" onclick="openQrModal(event)">
                     <div class="item-icon"><i class="fa-solid fa-qrcode"></i></div>
                     <div class="item-content">
                         <span>Mi QR</span>
@@ -145,11 +145,283 @@
         </section>
     </div>
 
+    <!-- Modal Mi QR -->
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-modal-bg-top"></div>
+        <div class="qr-modal-content">
+            <div class="qr-header">
+                <a href="#" class="qr-back-btn" onclick="closeQrModal(event)"><i class="fa-solid fa-angle-left"></i></a>
+                <h2>Mi QR</h2>
+            </div>
+            <p class="qr-subtitle">Muestra tu QR para recibir yapeos sin<br>compartir tu número de celular.</p>
+
+            <div class="qr-card" id="qrContainerProfile" style="cursor: pointer; position: relative;">
+                {% if qr_url == '/static/miqr.png' %}
+                <div id="qrEmptyState" class="qr-empty-state" style="display: flex;">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span style="font-size: 15px; font-weight: 500;">Añadir QR</span>
+                </div>
+                <img src="" alt="Código QR de Yape" class="qr-image" id="qrDisplayImage" style="display: none;">
+                {% else %}
+                <div id="qrEmptyState" class="qr-empty-state" style="display: none;">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span style="font-size: 15px; font-weight: 500;">Añadir QR</span>
+                </div>
+                <img src="{{ qr_url }}" alt="Código QR de Yape" class="qr-image" id="qrDisplayImage" style="display: block;">
+                {% endif %}
+                <input type="file" id="qrUploadInput" accept="image/*" style="display: none;">
+                <p class="qr-name">{{ nombre_completo }}</p>
+            </div>
+
+            <div class="qr-modal-bottom">
+                {% if qr_url != '/static/miqr.png' %}
+                <button class="qr-share-btn" onclick="openShareQrModal(event)">Comparte y descarga tu QR</button>
+                <button class="qr-delete-btn" onclick="deleteQr(event)"><i class="fa-solid fa-trash"></i> Eliminar
+                    QR</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Share QR -->
+    <div id="shareQrModal" class="share-qr-modal">
+        <a href="#" class="share-qr-close" onclick="closeShareQrModal(event)"><i class="fa-solid fa-xmark"></i></a>
+
+        <div id="qrCaptureArea" class="qr-capture-area">
+            <div class="share-qr-header">
+                <img src="/static/yape_logo_b.png" alt="Yape" class="share-qr-logo">
+            </div>
+
+            <div class="share-qr-content">
+                <div class="share-qr-card">
+                    <img src="{{ qr_url }}" alt="Código QR de Yape" class="share-qr-image">
+                    <div class="share-qr-badge">Paga aquí con Yape</div>
+                </div>
+
+                <p class="share-qr-name">{{ nombre_completo }}</p>
+            </div>
+        </div>
+
+        <div class="share-qr-actions">
+            <button class="action-btn" onclick="shareQR()">
+                <div class="action-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                <span>Compartir</span>
+            </button>
+            <button class="action-btn" onclick="downloadQR()">
+                <div class="action-icon"><i class="fa-solid fa-download"></i></div>
+                <span>Descargar</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const qrContainerProfile = document.getElementById('qrContainerProfile');
+            const qrUploadInput = document.getElementById('qrUploadInput');
+            if (qrContainerProfile && qrUploadInput) {
+                qrContainerProfile.addEventListener('click', () => {
+                    qrUploadInput.click();
+                });
+
+                qrUploadInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    qrContainerProfile.style.opacity = '0.5'; 
+                    
+                    const img = new Image();
+                    img.src = URL.createObjectURL(file);
+                    img.onload = async () => {
+                        try {
+                            const codeReader = new ZXing.BrowserQRCodeReader();
+                            const result = await codeReader.decodeFromImageElement(img);
+                            
+                            const points = result.resultPoints;
+                            let minX = points[0].x, maxX = points[0].x;
+                            let minY = points[0].y, maxY = points[0].y;
+                            for(let i=1; i<points.length; i++) {
+                                if(points[i] && points[i].x < minX) minX = points[i].x;
+                                if(points[i] && points[i].x > maxX) maxX = points[i].x;
+                                if(points[i] && points[i].y < minY) minY = points[i].y;
+                                if(points[i] && points[i].y > maxY) maxY = points[i].y;
+                            }
+                            
+                            const qrW = maxX - minX;
+                            const qrH = maxY - minY;
+                            const size = Math.max(qrW, qrH);
+                            const padding = size * 0.20; 
+                            
+                            let cropX = Math.max(0, minX - padding);
+                            let cropY = Math.max(0, minY - padding);
+                            let cropSizeW = size + padding * 2;
+                            let cropSizeH = size + padding * 2;
+                            
+                            if (cropX + cropSizeW > img.naturalWidth) cropSizeW = img.naturalWidth - cropX;
+                            if (cropY + cropSizeH > img.naturalHeight) cropSizeH = img.naturalHeight - cropY;
+                            
+                            let finalSize = Math.min(cropSizeW, cropSizeH);
+                            
+                            const cropCanvas = document.createElement('canvas');
+                            cropCanvas.width = finalSize;
+                            cropCanvas.height = finalSize;
+                            const cropCtx = cropCanvas.getContext('2d');
+                            cropCtx.fillStyle = '#FFFFFF';
+                            cropCtx.fillRect(0, 0, finalSize, finalSize);
+                            
+                            cropCtx.drawImage(img, cropX, cropY, finalSize, finalSize, 0, 0, finalSize, finalSize);
+                            
+                            cropCanvas.toBlob(async (blob) => {
+                                await uploadProfileQR(new File([blob], file.name, { type: 'image/png' }));
+                            }, 'image/png');
+                        } catch (err) {
+                            console.log("ZXing failed or error, attempting fallback crop", err);
+                            const w = img.naturalWidth;
+                            const h = img.naturalHeight;
+                            const minDim = Math.min(w, h);
+                            const cropSize = minDim * 0.55; 
+                            const cropX = (w - cropSize) / 2;
+                            const cropY = (h - cropSize) / 2;
+
+                            const cropCanvas = document.createElement('canvas');
+                            cropCanvas.width = cropSize;
+                            cropCanvas.height = cropSize;
+                            const cropCtx = cropCanvas.getContext('2d');
+                            cropCtx.fillStyle = '#FFFFFF';
+                            cropCtx.fillRect(0, 0, cropSize, cropSize);
+                            cropCtx.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, cropSize, cropSize);
+                            
+                            cropCanvas.toBlob(async (blob) => {
+                                await uploadProfileQR(new File([blob], file.name, { type: 'image/png' }));
+                            }, 'image/png');
+                        }
+                    };
+                    img.onerror = () => {
+                       alert('Error cargando la imagen');
+                       qrContainerProfile.style.opacity = '1';
+                    };
+                });
+            }
+        });
+
+        async function uploadProfileQR(uploadFile) {
+            const formData = new FormData();
+            formData.append('file', uploadFile);
+
+            try {
+                const response = await fetch('/api/upload_qr', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al subir el archivo');
+                }
+            } catch (err) {
+                console.error('Upload error', err);
+                alert('Error de conexión al subir el QR');
+            } finally {
+                document.getElementById('qrContainerProfile').style.opacity = '1';
+                document.getElementById('qrUploadInput').value = '';
+            }
+        }
+
+        async function getQrImageFile() {
+            const element = document.getElementById('qrCaptureArea');
+            const canvas = await html2canvas(element, {
+                backgroundColor: '#742284',
+                scale: 2,
+                useCORS: true
+            });
+            return new Promise(resolve => {
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'mi_qr_yape.png', { type: 'image/png' });
+                    resolve(file);
+                }, 'image/png');
+            });
+        }
+
+        async function shareQR() {
+            try {
+                // Ensure share button provides feedback or disables briefly (optional)
+                const file = await getQrImageFile();
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'Mi QR Yape',
+                        text: '¡Paga aquí con Yape!',
+                        files: [file]
+                    });
+                } else {
+                    alert('Tu dispositivo no soporta compartir imágenes. Se descargará la foto en su lugar.');
+                    downloadQR();
+                }
+            } catch (err) {
+                console.error('Error al compartir', err);
+            }
+        }
+
+        async function downloadQR() {
+            try {
+                const element = document.getElementById('qrCaptureArea');
+                const canvas = await html2canvas(element, {
+                    backgroundColor: '#742284',
+                    scale: 3, // slightly higher res for download
+                    useCORS: true
+                });
+                const link = document.createElement('a');
+                link.download = 'mi_qr_yape.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error('Error al descargar', err);
+            }
+        }
+
         function logout(e) {
             if (e) e.preventDefault();
             fetch('/api/logout', { method: 'POST' })
                 .then(() => window.location.href = '/login');
+        }
+
+        function openQrModal(e) {
+            e.preventDefault();
+            document.getElementById('qrModal').classList.add('active');
+        }
+
+        function closeQrModal(e) {
+            e.preventDefault();
+            document.getElementById('qrModal').classList.remove('active');
+        }
+
+        function openShareQrModal(e) {
+            e.preventDefault();
+            document.getElementById('shareQrModal').classList.add('active');
+        }
+
+        function closeShareQrModal(e) {
+            e.preventDefault();
+            document.getElementById('shareQrModal').classList.remove('active');
+        }
+
+        async function deleteQr(e) {
+            e.preventDefault();
+            if(!confirm('¿Estás seguro que deseas eliminar tu código QR?')) return;
+
+            try {
+                const response = await fetch('/api/delete_qr', { method: 'POST' });
+                const data = await response.json();
+                if(data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al eliminar el QR');
+                }
+            } catch(err) {
+                console.error(err);
+                alert('Error de conexión');
+            }
         }
     </script>
 </body>

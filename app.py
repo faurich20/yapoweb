@@ -5,8 +5,13 @@ import random
 import string
 from datetime import datetime
 import pytz
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'qrs')
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Configuración JWT y Seguridad
 app.config['SECRET_KEY'] = 'tu_secreto_super_seguro' 
@@ -83,6 +88,87 @@ def check_user():
         else:
             return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
     except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/get_user_qr', methods=['POST'])
+def api_get_user_qr():
+    data = request.get_json()
+    identifier = data.get('identifier')
+    if not identifier:
+        return jsonify({'success': False})
+        
+    try:
+        conexion = db.obtener_conexion(con_dict=True)
+        with conexion.cursor() as cursor:
+            cursor.execute("SELECT miqr FROM usuario WHERE nombre = %s OR email = %s", (identifier, identifier))
+            user = cursor.fetchone()
+        conexion.close()
+        
+        if user and user.get('miqr'):
+            return jsonify({'success': True, 'qr_url': f"/static/qrs/{user['miqr']}"})
+        else:
+            return jsonify({'success': True, 'qr_url': None})
+    except Exception as e:
+        print(f"Error api/get_user_qr: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/upload_qr', methods=['POST'])
+@jwt_required(optional=True)
+def api_upload_qr():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No se envió archivo'}), 400
+    
+    file = request.files['file']
+    identifier = request.form.get('identifier')
+    user_id_jwt = get_jwt_identity()
+    
+    if file.filename == '' or (not identifier and not user_id_jwt):
+        return jsonify({'success': False, 'message': 'Datos incompletos'}), 400
+        
+    if file:
+        try:
+            conexion = db.obtener_conexion(con_dict=True)
+            with conexion.cursor() as cursor:
+                if user_id_jwt:
+                    user_id = user_id_jwt
+                else:
+                    cursor.execute("SELECT id FROM usuario WHERE nombre = %s OR email = %s", (identifier, identifier))
+                    user = cursor.fetchone()
+                    if not user:
+                        conexion.close()
+                        return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
+                    user_id = user['id']
+                
+            ext = os.path.splitext(file.filename)[1]
+            if not ext:
+                ext = '.png'
+            filename = f"qr_user_{user_id}{ext}"
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            
+            with conexion.cursor() as cursor:
+                cursor.execute("UPDATE usuario SET miqr = %s WHERE id = %s", (filename, user_id))
+                conexion.commit()
+            conexion.close()
+            
+            return jsonify({'success': True, 'qr_url': f"/static/qrs/{filename}"})
+        except Exception as e:
+            print(f"Error api/upload_qr: {e}")
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/delete_qr', methods=['POST'])
+@jwt_required()
+def api_delete_qr():
+    try:
+        user_id = get_jwt_identity()
+        conexion = db.obtener_conexion(con_dict=True)
+        with conexion.cursor() as cursor:
+            cursor.execute("UPDATE usuario SET miqr = NULL WHERE id = %s", (user_id,))
+            conexion.commit()
+        conexion.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error api/delete_qr: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/login', methods=['POST'])
@@ -370,7 +456,23 @@ def yapear():
 @app.route('/perfil')
 @jwt_required()
 def perfil():
-    return render_template('perfil.html')
+    nombre_completo = ""
+    qr_url = "/static/miqr.png"
+    try:
+        user_id = get_jwt_identity()
+        conexion = db.obtener_conexion(con_dict=True)
+        with conexion.cursor() as cursor:
+            cursor.execute("SELECT nombre_completo, miqr FROM usuario WHERE id = %s", (user_id,))
+            user = cursor.fetchone()
+        conexion.close()
+        if user:
+            if user.get('nombre_completo'):
+                nombre_completo = user['nombre_completo'].title()
+            if user.get('miqr'):
+                qr_url = f"/static/qrs/{user['miqr']}"
+    except Exception as e:
+        print(f"Error perfil: {e}")
+    return render_template('perfil.html', nombre_completo=nombre_completo, qr_url=qr_url)
 
 @app.route('/api/contacto/<int:contacto_id>')
 @jwt_required()

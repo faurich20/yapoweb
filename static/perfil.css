@@ -180,3 +180,281 @@ body {
     font-size: 14px;
     /* Reduced font size to match footer style */
 }
+
+/* Modal Mi QR */
+.qr-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-bg-gray);
+    z-index: 2000;
+}
+
+.qr-modal.active {
+    display: block;
+}
+
+.qr-modal-bg-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background-color: var(--color-purple);
+    z-index: 1;
+}
+
+.qr-modal-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.qr-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    color: var(--color-white);
+}
+
+.qr-back-btn {
+    color: var(--color-white);
+    font-size: 24px;
+    text-decoration: none;
+    margin-right: 30px;
+}
+
+.qr-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.qr-subtitle {
+    color: var(--color-white);
+    text-align: center;
+    margin: 40px 30px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.qr-card {
+    background: var(--color-white);
+    border-radius: 12px;
+    margin: 0 20px;
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.qr-image {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+.qr-empty-state {
+    width: 200px;
+    height: 200px;
+    display: none; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f6f6f9;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    color: #999;
+    box-sizing: border-box;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.qr-empty-state i {
+    font-size: 40px;
+    margin-bottom: 8px;
+    color: var(--color-purple);
+    opacity: 0.5;
+}
+
+.qr-name {
+    margin: 0;
+    color: var(--color-purple);
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+}
+
+.qr-modal-bottom {
+    margin-top: auto;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.qr-share-btn {
+    width: 100%;
+    background-color: #00d1b2;
+    color: var(--color-white);
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.qr-delete-btn {
+    width: 100%;
+    background-color: #e53935;
+    color: var(--color-white);
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Modal Share QR */
+.share-qr-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-purple);
+    z-index: 3000;
+    flex-direction: column;
+}
+
+.share-qr-modal.active {
+    display: flex;
+}
+
+.qr-capture-area {
+    background-color: var(--color-purple);
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 30px;
+}
+
+.share-qr-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.share-qr-close {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    color: var(--color-white);
+    font-size: 24px;
+    text-decoration: none;
+    z-index: 10;
+}
+
+.share-qr-logo {
+    height: 45px;
+    object-fit: contain;
+}
+
+.share-qr-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: -20px;
+}
+
+.share-qr-card {
+    background: var(--color-white);
+    border-radius: 12px;
+    padding: 15px;
+    position: relative;
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    height: 250px;
+}
+
+.share-qr-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.share-qr-badge {
+    position: absolute;
+    bottom: -15px;
+    background-color: #00d1b2;
+    color: var(--color-white);
+    padding: 8px 25px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.share-qr-name {
+    color: var(--color-white);
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+}
+
+.share-qr-actions {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding-bottom: 50px;
+}
+
+.action-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.action-btn span {
+    font-size: 13px;
+    font-weight: 400;
+}

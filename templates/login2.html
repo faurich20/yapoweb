@@ -12,8 +12,13 @@
 
 <body>
     <div class="upper-section">
-        <div class="qr-container">
-            <img src="{{ url_for('static', filename='miqr.png') }}" alt="QR Yape" class="qr-image">
+        <div class="qr-container" id="qrContainer" style="cursor: pointer;">
+            <div id="qrEmptyState" class="qr-empty-state">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span style="font-size: 13px; font-weight: 500;">Añadir QR</span>
+            </div>
+            <img src="" alt="QR Yape" class="qr-image" id="qrDisplayImage" style="display: none;">
+            <input type="file" id="qrUploadInput" accept="image/*" style="display: none;">
         </div>
 
         <div class="options-row">
@@ -77,6 +82,7 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let password = [];
@@ -88,6 +94,145 @@
                 window.location.href = '/login';
                 return;
             }
+
+            // --- QR Dynamic Loading & Uploading ---
+            const qrContainer = document.getElementById('qrContainer');
+            const qrEmptyState = document.getElementById('qrEmptyState');
+            const qrDisplayImage = document.getElementById('qrDisplayImage');
+            const qrUploadInput = document.getElementById('qrUploadInput');
+            
+            fetch('/api/get_user_qr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ identifier: identifier })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.qr_url) {
+                    qrDisplayImage.src = data.qr_url;
+                    qrDisplayImage.style.display = 'block';
+                    qrEmptyState.style.display = 'none';
+                } else {
+                    qrDisplayImage.style.display = 'none';
+                    qrEmptyState.style.display = 'flex';
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching QR", err);
+                qrDisplayImage.style.display = 'none';
+                qrEmptyState.style.display = 'flex';
+            });
+
+            qrContainer.addEventListener('click', () => {
+                qrUploadInput.click();
+            });
+
+            qrUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                qrContainer.style.opacity = '0.5'; 
+                
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = async () => {
+                    try {
+                        const codeReader = new ZXing.BrowserQRCodeReader();
+                        const result = await codeReader.decodeFromImageElement(img);
+                        
+                        const points = result.resultPoints;
+                        let minX = points[0].x, maxX = points[0].x;
+                        let minY = points[0].y, maxY = points[0].y;
+                        for(let i=1; i<points.length; i++) {
+                            if(points[i] && points[i].x < minX) minX = points[i].x;
+                            if(points[i] && points[i].x > maxX) maxX = points[i].x;
+                            if(points[i] && points[i].y < minY) minY = points[i].y;
+                            if(points[i] && points[i].y > maxY) maxY = points[i].y;
+                        }
+                        
+                        const qrW = maxX - minX;
+                        const qrH = maxY - minY;
+                        const size = Math.max(qrW, qrH);
+                        const padding = size * 0.20; 
+                        
+                        let cropX = Math.max(0, minX - padding);
+                        let cropY = Math.max(0, minY - padding);
+                        let cropSizeW = size + padding * 2;
+                        let cropSizeH = size + padding * 2;
+                        
+                        if (cropX + cropSizeW > img.naturalWidth) cropSizeW = img.naturalWidth - cropX;
+                        if (cropY + cropSizeH > img.naturalHeight) cropSizeH = img.naturalHeight - cropY;
+                        
+                        let finalSize = Math.min(cropSizeW, cropSizeH);
+                        
+                        const cropCanvas = document.createElement('canvas');
+                        cropCanvas.width = finalSize;
+                        cropCanvas.height = finalSize;
+                        const cropCtx = cropCanvas.getContext('2d');
+                        cropCtx.fillStyle = '#FFFFFF';
+                        cropCtx.fillRect(0, 0, finalSize, finalSize);
+                        
+                        cropCtx.drawImage(img, cropX, cropY, finalSize, finalSize, 0, 0, finalSize, finalSize);
+                        
+                        cropCanvas.toBlob(async (blob) => {
+                            await sendFile(new File([blob], file.name, { type: 'image/png' }));
+                        }, 'image/png');
+                    } catch (err) {
+                        console.log("ZXing failed or error, attempting fallback crop", err);
+                        const w = img.naturalWidth;
+                        const h = img.naturalHeight;
+                        const minDim = Math.min(w, h);
+                        const cropSize = minDim * 0.55; 
+                        const cropX = (w - cropSize) / 2;
+                        const cropY = (h - cropSize) / 2;
+
+                        const cropCanvas = document.createElement('canvas');
+                        cropCanvas.width = cropSize;
+                        cropCanvas.height = cropSize;
+                        const cropCtx = cropCanvas.getContext('2d');
+                        cropCtx.fillStyle = '#FFFFFF';
+                        cropCtx.fillRect(0, 0, cropSize, cropSize);
+                        cropCtx.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, cropSize, cropSize);
+                        
+                        cropCanvas.toBlob(async (blob) => {
+                            await sendFile(new File([blob], file.name, { type: 'image/png' }));
+                        }, 'image/png');
+                    }
+                };
+                img.onerror = () => {
+                   alert('Error cargando la imagen');
+                   qrContainer.style.opacity = '1';
+                };
+            });
+
+            async function sendFile(uploadFile) {
+                const formData = new FormData();
+                formData.append('file', uploadFile);
+                formData.append('identifier', identifier);
+
+                try {
+                    const response = await fetch('/api/upload_qr', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        qrDisplayImage.src = data.qr_url + '?t=' + new Date().getTime();
+                        qrDisplayImage.style.display = 'block';
+                        qrEmptyState.style.display = 'none';
+                    } else {
+                        alert(data.message || 'Error al subir el archivo');
+                    }
+                } catch (err) {
+                    console.error('Upload error', err);
+                    alert('Error de conexión al subir el QR');
+                } finally {
+                    qrContainer.style.opacity = '1';
+                    qrUploadInput.value = '';
+                }
+            }
+            // --------------------------------------
 
             const titleMsg = document.getElementById('titleMsg');
             const dotsContainer = document.getElementById('dotsContainer');

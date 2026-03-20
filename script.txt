@@ -11,6 +11,7 @@ CREATE TABLE usuario (
     pregunta VARCHAR(255) NOT NULL, -- Ej: "¿Cuál es el nombre de tu mascota?"
     respuesta VARCHAR(255) NOT NULL, -- La respuesta a la pregunta anterior
     ultima_sesion DATETIME NULL,
+    miqr VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

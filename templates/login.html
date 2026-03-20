@@ -35,6 +35,13 @@
             const emailInput = document.getElementById('email');
             const btnContinue = document.getElementById('btnContinue');
 
+            emailInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btnContinue.click();
+                }
+            });
+
             // Simple validation to enable button
             emailInput.addEventListener('input', () => {
                 if (emailInput.value.trim().length > 0) {
