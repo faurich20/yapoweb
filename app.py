@@ -171,6 +171,52 @@ def api_delete_qr():
         print(f"Error api/delete_qr: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/contactos_qr', methods=['GET'])
+@jwt_required(optional=True)
+def get_contactos_qr():
+    try:
+        conexion = db.obtener_conexion(con_dict=True)
+        with conexion.cursor() as cursor:
+            query = """
+                SELECT c.id, c.nombres, c.num_celular, sc.qr_payload 
+                FROM contacto c
+                LEFT JOIN scan_contacto sc ON c.id = sc.contacto_id
+                ORDER BY c.nombres ASC
+            """
+            cursor.execute(query)
+            contactos = cursor.fetchall()
+        conexion.close()
+        return jsonify({'success': True, 'contactos': contactos})
+    except Exception as e:
+        print(f"Error api/contactos_qr: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/save_contacto_qr', methods=['POST'])
+@jwt_required(optional=True)
+def save_contacto_qr():
+    data = request.get_json()
+    contacto_id = data.get('contacto_id')
+    payload = data.get('payload')
+    
+    if not contacto_id:
+        return jsonify({'success': False, 'message': 'ID de contacto requerido'}), 400
+        
+    try:
+        conexion = db.obtener_conexion(con_dict=True)
+        with conexion.cursor() as cursor:
+            cursor.execute("SELECT id FROM scan_contacto WHERE contacto_id = %s", (contacto_id,))
+            scan = cursor.fetchone()
+            if scan:
+                cursor.execute("UPDATE scan_contacto SET qr_payload = %s WHERE contacto_id = %s", (payload, contacto_id))
+            else:
+                cursor.execute("INSERT INTO scan_contacto (contacto_id, qr_payload, es_valido) VALUES (%s, %s, TRUE)", (contacto_id, payload))
+            conexion.commit()
+        conexion.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error api/save_contacto_qr: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.get_json()

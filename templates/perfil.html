@@ -167,7 +167,8 @@
                     <i class="fa-solid fa-plus-circle"></i>
                     <span style="font-size: 15px; font-weight: 500;">Añadir QR</span>
                 </div>
-                <img src="{{ qr_url }}" alt="Código QR de Yape" class="qr-image" id="qrDisplayImage" style="display: block;">
+                <img src="{{ qr_url }}" alt="Código QR de Yape" class="qr-image" id="qrDisplayImage"
+                    style="display: block;">
                 {% endif %}
                 <input type="file" id="qrUploadInput" accept="image/*" style="display: none;">
                 <p class="qr-name">{{ nombre_completo }}</p>
@@ -177,7 +178,9 @@
                 {% if qr_url != '/static/miqr.png' %}
                 <button class="qr-share-btn" onclick="openShareQrModal(event)">Comparte y descarga tu QR</button>
                 <button class="qr-delete-btn" onclick="deleteQr(event)"><i class="fa-solid fa-trash"></i> Eliminar
-                    QR</button>
+                    mi QR</button>
+                <button class="qr-add-btn" onclick="openAssignQrModal(event)"><i class="fa-solid fa-plus"></i> Asignar
+                    otros QRs</button>
                 {% endif %}
             </div>
         </div>
@@ -214,7 +217,29 @@
         </div>
     </div>
 
+    <!-- Modal Assign QR -->
+    <div id="assignQrModal" class="assign-modal-overlay">
+        <div class="assign-qr-content">
+            <a href="#" class="assign-qr-close" onclick="closeAssignQrModal(event)"><i
+                    class="fa-solid fa-xmark"></i></a>
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-right: 25px; gap: 10px;">
+                <h3 class="assign-qr-title" style="margin: 0; padding-right: 0; white-space: nowrap;">QR Contactos</h3>
+                <div style="position: relative; flex: 1; min-width: 120px;">
+                    <i class="fa-solid fa-magnifying-glass"
+                        style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 13px;"></i>
+                    <input type="text" id="contactSearchInput" placeholder="Buscar..." oninput="filterContacts()"
+                        style="width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 20px; padding: 7px 10px 7px 32px; font-size: 13px; outline: none; color: #555;">
+                </div>
+            </div>
+            <div id="contactQrList" class="contact-list">
+                <!-- Contactos inyectados por JS -->
+            </div>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const qrContainerProfile = document.getElementById('qrContainerProfile');
@@ -228,49 +253,49 @@
                     const file = e.target.files[0];
                     if (!file) return;
 
-                    qrContainerProfile.style.opacity = '0.5'; 
-                    
+                    qrContainerProfile.style.opacity = '0.5';
+
                     const img = new Image();
                     img.src = URL.createObjectURL(file);
                     img.onload = async () => {
                         try {
                             const codeReader = new ZXing.BrowserQRCodeReader();
                             const result = await codeReader.decodeFromImageElement(img);
-                            
+
                             const points = result.resultPoints;
                             let minX = points[0].x, maxX = points[0].x;
                             let minY = points[0].y, maxY = points[0].y;
-                            for(let i=1; i<points.length; i++) {
-                                if(points[i] && points[i].x < minX) minX = points[i].x;
-                                if(points[i] && points[i].x > maxX) maxX = points[i].x;
-                                if(points[i] && points[i].y < minY) minY = points[i].y;
-                                if(points[i] && points[i].y > maxY) maxY = points[i].y;
+                            for (let i = 1; i < points.length; i++) {
+                                if (points[i] && points[i].x < minX) minX = points[i].x;
+                                if (points[i] && points[i].x > maxX) maxX = points[i].x;
+                                if (points[i] && points[i].y < minY) minY = points[i].y;
+                                if (points[i] && points[i].y > maxY) maxY = points[i].y;
                             }
-                            
+
                             const qrW = maxX - minX;
                             const qrH = maxY - minY;
                             const size = Math.max(qrW, qrH);
-                            const padding = size * 0.20; 
-                            
+                            const padding = size * 0.20;
+
                             let cropX = Math.max(0, minX - padding);
                             let cropY = Math.max(0, minY - padding);
                             let cropSizeW = size + padding * 2;
                             let cropSizeH = size + padding * 2;
-                            
+
                             if (cropX + cropSizeW > img.naturalWidth) cropSizeW = img.naturalWidth - cropX;
                             if (cropY + cropSizeH > img.naturalHeight) cropSizeH = img.naturalHeight - cropY;
-                            
+
                             let finalSize = Math.min(cropSizeW, cropSizeH);
-                            
+
                             const cropCanvas = document.createElement('canvas');
                             cropCanvas.width = finalSize;
                             cropCanvas.height = finalSize;
                             const cropCtx = cropCanvas.getContext('2d');
                             cropCtx.fillStyle = '#FFFFFF';
                             cropCtx.fillRect(0, 0, finalSize, finalSize);
-                            
+
                             cropCtx.drawImage(img, cropX, cropY, finalSize, finalSize, 0, 0, finalSize, finalSize);
-                            
+
                             cropCanvas.toBlob(async (blob) => {
                                 await uploadProfileQR(new File([blob], file.name, { type: 'image/png' }));
                             }, 'image/png');
@@ -279,7 +304,7 @@
                             const w = img.naturalWidth;
                             const h = img.naturalHeight;
                             const minDim = Math.min(w, h);
-                            const cropSize = minDim * 0.55; 
+                            const cropSize = minDim * 0.55;
                             const cropX = (w - cropSize) / 2;
                             const cropY = (h - cropSize) / 2;
 
@@ -290,15 +315,15 @@
                             cropCtx.fillStyle = '#FFFFFF';
                             cropCtx.fillRect(0, 0, cropSize, cropSize);
                             cropCtx.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, cropSize, cropSize);
-                            
+
                             cropCanvas.toBlob(async (blob) => {
                                 await uploadProfileQR(new File([blob], file.name, { type: 'image/png' }));
                             }, 'image/png');
                         }
                     };
                     img.onerror = () => {
-                       alert('Error cargando la imagen');
-                       qrContainerProfile.style.opacity = '1';
+                        alert('Error cargando la imagen');
+                        qrContainerProfile.style.opacity = '1';
                     };
                 });
             }
@@ -314,7 +339,7 @@
                     body: formData
                 });
                 const data = await response.json();
-                
+
                 if (data.success) {
                     window.location.reload();
                 } else {
@@ -333,15 +358,134 @@
             const element = document.getElementById('qrCaptureArea');
             const canvas = await html2canvas(element, {
                 backgroundColor: '#742284',
-                scale: 2,
+                scale: 3,
                 useCORS: true
             });
+
             return new Promise(resolve => {
                 canvas.toBlob(blob => {
-                    const file = new File([blob], 'mi_qr_yape.png', { type: 'image/png' });
-                    resolve(file);
+                    resolve(new File([blob], 'mi_qr_yape.png', { type: 'image/png' }));
                 }, 'image/png');
             });
+        }
+
+        async function openAssignQrModal(e) {
+            e.preventDefault();
+            document.getElementById('assignQrModal').classList.add('active');
+            const searchInput = document.getElementById('contactSearchInput');
+            if (searchInput) searchInput.value = '';
+
+            try {
+                const response = await fetch('/api/contactos_qr');
+                const data = await response.json();
+
+                const listContainer = document.getElementById('contactQrList');
+                listContainer.innerHTML = '';
+
+                if (data.success && data.contactos.length > 0) {
+                    data.contactos.forEach(c => {
+                        const div = document.createElement('div');
+                        div.className = 'contact-item';
+
+                        const textareaId = 'payload_' + c.id;
+                        const editBtnId = 'editBtn_' + c.id;
+                        const payloadText = c.qr_payload || '';
+
+                        div.innerHTML = `
+                            <div class="contact-info">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <div>
+                                        <span class="contact-name">${c.nombres}</span>
+                                        <span class="contact-phone" style="margin-left: 8px;">${c.num_celular || 'Sin celular'}</span>
+                                    </div>
+                                    <div id="${editBtnId}" class="contact-action" onclick="toggleEditContactQr(${c.id})">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </div>
+                                </div>
+                                <textarea id="${textareaId}" class="contact-payload-input" rows="3" spellcheck="false" disabled style="background-color: #eee; cursor: not-allowed; transition: background-color 0.2s;">${payloadText}</textarea>
+                            </div>
+                        `;
+                        listContainer.appendChild(div);
+                    });
+                } else {
+                    listContainer.innerHTML = '<p style="color:#666; font-size:14px; text-align:center;">No hay contactos escaneados disponibles.</p>';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('contactQrList').innerHTML = '<p style="color:red; font-size:14px; text-align:center;">Error cargando contactos.</p>';
+            }
+        }
+
+        function closeAssignQrModal(e) {
+            e.preventDefault();
+            document.getElementById('assignQrModal').classList.remove('active');
+        }
+
+        function filterContacts() {
+            const input = document.getElementById('contactSearchInput');
+            const filter = input.value.toLowerCase();
+            const listContainer = document.getElementById('contactQrList');
+            const items = listContainer.getElementsByClassName('contact-item');
+
+            for (let i = 0; i < items.length; i++) {
+                const nameSpan = items[i].querySelector('.contact-name');
+                const phoneSpan = items[i].querySelector('.contact-phone');
+                const name = nameSpan ? nameSpan.textContent.toLowerCase() : "";
+                const phone = phoneSpan ? phoneSpan.textContent.toLowerCase() : "";
+
+                if (name.includes(filter) || phone.includes(filter)) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
+
+        async function toggleEditContactQr(contactoId) {
+            const textarea = document.getElementById('payload_' + contactoId);
+            const editBtn = document.getElementById('editBtn_' + contactoId);
+
+            if (textarea.disabled) {
+                textarea.disabled = false;
+                textarea.style.backgroundColor = '#fff';
+                textarea.style.cursor = 'text';
+                textarea.focus();
+
+                editBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i>';
+            } else {
+                const newPayload = textarea.value.trim();
+
+                textarea.disabled = true;
+                textarea.style.backgroundColor = '#eee';
+                textarea.style.cursor = 'not-allowed';
+                editBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                try {
+                    const response = await fetch('/api/save_contacto_qr', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contacto_id: contactoId, payload: newPayload })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                    } else {
+                        alert(data.message || 'Error al guardar');
+                        textarea.disabled = false;
+                        textarea.style.backgroundColor = '#fff';
+                        textarea.style.cursor = 'text';
+                        editBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i>';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error de conexión');
+                    textarea.disabled = false;
+                    textarea.style.backgroundColor = '#fff';
+                    textarea.style.cursor = 'text';
+                    editBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i>';
+                }
+            }
         }
 
         async function shareQR() {
@@ -408,17 +552,17 @@
 
         async function deleteQr(e) {
             e.preventDefault();
-            if(!confirm('¿Estás seguro que deseas eliminar tu código QR?')) return;
+            if (!confirm('¿Estás seguro que deseas eliminar tu código QR?')) return;
 
             try {
                 const response = await fetch('/api/delete_qr', { method: 'POST' });
                 const data = await response.json();
-                if(data.success) {
+                if (data.success) {
                     window.location.reload();
                 } else {
                     alert(data.message || 'Error al eliminar el QR');
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error(err);
                 alert('Error de conexión');
             }
